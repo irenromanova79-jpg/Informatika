@@ -1,379 +1,534 @@
-
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Тренажёр · Информатика и ИКТ · ДонГУ</title>
 <style>
+:root{
+  --bg:#f7f6f3;--card:#fff;--border:#e0ddd6;--text:#1a1a18;--muted:#6b6b67;
+  --blue:#185FA5;--blue-lt:#E6F1FB;--blue-dk:#042C53;--blue-md:#85B7EB;
+  --green:#3B6D11;--green-lt:#EAF3DE;--green-md:#97C459;
+  --red:#A32D2D;--red-lt:#FCEBEB;--red-md:#F09595;
+  --amber:#854F0B;--amber-lt:#FAEEDA;--amber-md:#EF9F27;
+  --purple:#534AB7;--purple-lt:#EEEDFE;
+  --teal:#0F6E56;--teal-lt:#E1F5EE;
+  --radius:10px;--radius-sm:6px;--font:'Segoe UI',system-ui,sans-serif;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-.app{font-family:var(--font-sans);padding:1.5rem 0}
-.screen{display:none}.screen.active{display:block}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes popIn{from{opacity:0;transform:scale(0.88)}to{opacity:1;transform:scale(1)}}
-@keyframes xpFloat{0%{opacity:0;transform:translateY(0) scale(.85)}40%{opacity:1;transform:translateY(-14px) scale(1.05)}100%{opacity:0;transform:translateY(-32px)}}
-@keyframes streakPulse{0%,100%{background:#FAEEDA}50%{background:#FAC775}}
-.afu{animation:fadeUp .3s ease both}.apo{animation:popIn .25s ease both}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding-bottom:1rem;border-bottom:.5px solid var(--color-border-tertiary);margin-bottom:1.25rem}
-.lv-badge{background:#E6F1FB;color:#042C53;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;border:.5px solid #85B7EB}
-.xpbar-wrap{width:110px}
-.xpbar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--color-text-secondary);margin-bottom:3px}
-.xpbar-track{height:5px;background:var(--color-background-secondary);border-radius:3px}
-.xpbar-fill{height:5px;background:#185FA5;border-radius:3px;transition:width .7s ease}
-.streak-pip{display:flex;align-items:center;gap:5px;background:#FAEEDA;color:#412402;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;border:.5px solid #EF9F27}
-.ring-wrap{width:80px;height:80px;margin:0 auto 10px;position:relative}
-.ring-wrap svg{width:80px;height:80px}
+body{background:var(--bg);font-family:var(--font);color:var(--text);min-height:100vh}
+.wrap{max-width:740px;margin:0 auto;padding:1.5rem 1rem 3rem}
+.screen{display:none}.screen.on{display:block}
+
+/* TOP BAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:1.25rem}
+.lv-badge{background:var(--blue-lt);color:var(--blue-dk);border-radius:var(--radius-sm);padding:3px 10px;font-size:12px;font-weight:600;border:1px solid var(--blue-md)}
+.xbw{width:120px}.xbl{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:3px}
+.xbt{height:5px;background:#ebe9e4;border-radius:3px}.xbf{height:5px;background:var(--blue);border-radius:3px;transition:width .7s ease}
+.streak{background:var(--amber-lt);color:var(--amber);border-radius:var(--radius-sm);padding:3px 10px;font-size:12px;font-weight:600;border:1px solid var(--amber-md)}
+
+/* HERO */
+.hero{text-align:center;padding:1.25rem 0 .75rem}
+.ring-wrap{width:88px;height:88px;margin:0 auto 10px;position:relative}
+.ring-wrap svg{width:88px;height:88px}
 .ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ring-num{font-size:22px;font-weight:500;color:var(--color-text-primary);line-height:1}
-.ring-lbl{font-size:9px;color:var(--color-text-secondary);margin-top:2px}
-.stat-g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:1rem 0}
-.stat-c{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
-.stat-v{font-size:22px;font-weight:500;color:var(--color-text-primary)}
-.stat-l{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
-.sec-ttl{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.06em;text-transform:uppercase;margin:1.25rem 0 .75rem}
-.ach-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
-.ach-c{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;display:flex;align-items:flex-start;gap:10px;opacity:.5}
-.ach-c.on{opacity:1;border-color:#85B7EB;background:#E6F1FB}
-.ach-ico{width:28px;height:28px;border-radius:6px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
-.ach-c.on .ach-ico{background:#B5D4F4}
-.ach-nm{font-size:12px;font-weight:500;color:var(--color-text-primary);line-height:1.3}
-.ach-c.on .ach-nm{color:#042C53}
-.ach-ds{font-size:11px;color:var(--color-text-secondary);margin-top:2px;line-height:1.4}
-.ach-c.on .ach-ds{color:#185FA5}
-.hist-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:.5px solid var(--color-border-tertiary)}
-.hist-row:last-child{border:none}
-.hist-sc{font-size:18px;font-weight:500;color:var(--color-text-primary)}
-.hist-gd{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500}
-.g5{background:#EAF3DE;color:#173404}.g4{background:#E6F1FB;color:#042C53}.g3{background:#FAEEDA;color:#412402}.g2{background:#FCEBEB;color:#501313}
-.hist-mt{font-size:11px;color:var(--color-text-secondary)}
-.mode-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:1.25rem}
-.mbtn{background:var(--color-background-primary);border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;cursor:pointer;text-align:left}
-.mbtn:hover{background:var(--color-background-secondary)}
-.mbtn.pr{border:2px solid #185FA5;background:#E6F1FB}
-.mbtn.pr:hover{background:#B5D4F4}
-.mbtn-t{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
-.mbtn.pr .mbtn-t{color:#042C53}
-.mbtn-d{font-size:11px;color:var(--color-text-secondary);line-height:1.4}
-.mbtn.pr .mbtn-d{color:#185FA5}
-.etopbar{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem}
-.prog-track{flex:1;height:6px;background:var(--color-background-secondary);border-radius:3px}
-.prog-fill{height:6px;background:#185FA5;border-radius:3px;transition:width .4s ease}
-.timer-chip{display:flex;align-items:center;gap:4px;background:var(--color-background-secondary);border-radius:6px;padding:5px 10px;font-size:13px;font-weight:500;color:var(--color-text-primary);font-variant-numeric:tabular-nums;border:.5px solid var(--color-border-tertiary);flex-shrink:0}
-.timer-chip.warn{background:#FAEEDA;color:#412402;border-color:#EF9F27}
-.timer-chip.crit{background:#FCEBEB;color:#501313;border-color:#E24B4A}
-.sk-chip{display:flex;align-items:center;gap:4px;background:#FAEEDA;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:500;color:#412402;border:.5px solid #EF9F27;flex-shrink:0}
-.q-card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem}
-.q-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
-.q-nr{font-size:12px;color:var(--color-text-secondary)}
-.q-tp{font-size:11px;padding:3px 8px;border-radius:4px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:.5px solid var(--color-border-tertiary)}
-.q-txt{font-size:15px;font-weight:500;color:var(--color-text-primary);line-height:1.6}
+.ring-num{font-size:24px;font-weight:700;color:var(--text)}.ring-lbl{font-size:9px;color:var(--muted);margin-top:2px}
+.hero-rank{font-size:18px;font-weight:600;color:var(--text)}
+.hero-xp{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* STATS */
+.stat-g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:.9rem 0}
+.stat-c{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.sv{font-size:22px;font-weight:700;color:var(--text)}.sl{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* SECTION TITLE */
+.sec{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin:1.25rem 0 .7rem}
+
+/* ACHIEVEMENTS */
+.ach-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.ach-c{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;display:flex;gap:10px;align-items:flex-start;opacity:.45;transition:opacity .2s}
+.ach-c.on{opacity:1;border-color:var(--blue-md);background:var(--blue-lt)}
+.ach-ico{width:28px;height:28px;border-radius:6px;background:#ebe9e4;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ach-c.on .ach-ico{background:var(--blue-md)}
+.ach-n{font-size:12px;font-weight:600;color:var(--text)}.ach-c.on .ach-n{color:var(--blue-dk)}
+.ach-d{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.35}.ach-c.on .ach-d{color:var(--blue)}
+
+/* TICKET GRID */
+.tkg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.tkc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.tkc.done{border-color:var(--blue-md)}
+.tk-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.tk-num{font-size:14px;font-weight:700;color:var(--text)}
+.tk-score{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600}
+.tk-score.ok{background:var(--blue-lt);color:var(--blue-dk)}
+.tk-score.new{background:#ebe9e4;color:var(--muted)}
+.tp-pills{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.tp{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;border:1px solid}
+.tp.cg{background:var(--teal-lt);color:var(--teal);border-color:#5DCAA5}
+.tp.to{background:var(--blue-lt);color:var(--blue-dk);border-color:var(--blue-md)}
+.tp.it{background:var(--purple-lt);color:var(--purple);border-color:#AFA9EC}
+.tp.ap{background:var(--amber-lt);color:var(--amber);border-color:var(--amber-md)}
+.tk-btns{display:flex;gap:6px}
+.tkb{flex:1;padding:8px 0;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text);transition:background .12s}
+.tkb:hover{background:var(--bg)}
+.tkb.pr{background:var(--blue);border-color:var(--blue);color:#fff}
+.tkb.pr:hover{background:var(--blue-dk)}
+
+/* HISTORY */
+.h-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)}
+.h-row:last-child{border:none}
+.h-sc{font-size:17px;font-weight:700;color:var(--text)}
+.h-gd{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600}
+.g5{background:var(--green-lt);color:var(--green)}.g4{background:var(--blue-lt);color:var(--blue-dk)}.g3{background:var(--amber-lt);color:var(--amber)}.g2{background:var(--red-lt);color:var(--red)}
+.h-meta{font-size:11px;color:var(--muted)}
+
+/* EXAM */
+.etb{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
+.prog-t{flex:1;height:6px;background:#ebe9e4;border-radius:3px}
+.prog-f{height:6px;background:var(--blue);border-radius:3px;transition:width .4s ease}
+.tch{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 11px;font-size:13px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;flex-shrink:0}
+.tch.warn{background:var(--amber-lt);color:var(--amber);border-color:var(--amber-md)}
+.tch.crit{background:var(--red-lt);color:var(--red);border-color:var(--red-md)}
+.sk-chip{display:flex;align-items:center;gap:4px;background:var(--amber-lt);border:1px solid var(--amber-md);border-radius:var(--radius-sm);padding:5px 11px;font-size:12px;font-weight:600;color:var(--amber);flex-shrink:0}
+
+/* TICKET HEADER */
+.bhead{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;margin-bottom:10px;text-align:center}
+.bh-num{font-size:13px;font-weight:700;color:var(--text)}
+.bh-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* QUESTION */
+.qc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:.9rem;position:relative}
+.qhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.qnr{font-size:12px;color:var(--muted)}
+.qtp{font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--muted)}
+.qtxt{font-size:15px;font-weight:600;line-height:1.6;color:var(--text)}
+.qtxt code{font-family:'Courier New',monospace;font-size:13px;background:var(--bg);padding:1px 5px;border-radius:4px;font-weight:400;border:1px solid var(--border)}
+
+/* OPTIONS */
 .opts-list{display:flex;flex-direction:column;gap:8px}
-.opt{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:11px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--color-text-primary);line-height:1.5;transition:border-color .12s,background .12s;width:100%}
-.opt:hover:not(:disabled){border-color:var(--color-border-secondary);background:var(--color-background-secondary)}
+.opt{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--text);line-height:1.5;transition:all .12s;width:100%;text-align:left}
+.opt:hover:not(:disabled){border-color:#aaa;background:var(--bg)}
 .opt:disabled{cursor:default}
-.opt.sel{border-color:#378ADD;background:#E6F1FB;color:#042C53}
-.opt.ok{border-color:#639922;background:#EAF3DE;color:#173404}
-.opt.ng{border-color:#E24B4A;background:#FCEBEB;color:#501313}
-.opt-l{width:22px;height:22px;border-radius:5px;background:var(--color-background-secondary);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;color:var(--color-text-secondary)}
-.opt.sel .opt-l{background:#85B7EB;color:#042C53}
-.opt.ok .opt-l{background:#97C459;color:#173404}
-.opt.ng .opt-l{background:#F09595;color:#501313}
-.fb{border-radius:var(--border-radius-md);padding:10px 14px;font-size:13px;line-height:1.6;margin:8px 0;border-left:3px solid;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
-.fb.ok-fb{background:#EAF3DE;color:#173404;border-color:#639922}
-.fb.ng-fb{background:#FCEBEB;color:#501313;border-color:#E24B4A}
-.fb-head{font-weight:500;margin-bottom:3px;font-size:12px}
+.opt.sel{border-color:var(--blue);background:var(--blue-lt);color:var(--blue-dk)}
+.opt.ok{border-color:var(--green);background:var(--green-lt);color:var(--green)}
+.opt.ng{border-color:var(--red);background:var(--red-lt);color:var(--red)}
+.opt-l{width:24px;height:24px;border-radius:5px;background:var(--bg);border:1px solid var(--border);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;color:var(--muted)}
+.opt.sel .opt-l{background:var(--blue-md);border-color:var(--blue);color:var(--blue-dk)}
+.opt.ok .opt-l{background:var(--green-md);border-color:var(--green);color:#fff}
+.opt.ng .opt-l{background:var(--red-md);border-color:var(--red);color:#fff}
+
+/* FEEDBACK */
+.fb{border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:10px 14px;font-size:13px;line-height:1.6;margin:8px 0;border-left:3px solid}
+.fb.ok{background:var(--green-lt);color:var(--green);border-color:var(--green)}
+.fb.ng{background:var(--red-lt);color:var(--red);border-color:var(--red)}
+.fb-h{font-weight:700;margin-bottom:3px;font-size:12px}
+
+/* DOTS */
 .dots{display:flex;gap:5px;flex-wrap:wrap}
-.dot{width:13px;height:13px;border-radius:50%;border:.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);cursor:pointer;transition:background .2s}
-.dot.c-ok{background:#C0DD97;border-color:#639922}
-.dot.c-ng{background:#F7C1C1;border-color:#E24B4A}
-.dot.c-cur{background:#185FA5;border-color:#0C447C}
-.navrow{display:flex;align-items:center;justify-content:space-between;margin-top:1rem}
-.btn{padding:9px 18px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;border:.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary)}
-.btn:hover{background:var(--color-background-secondary)}
-.btn.pr{background:#185FA5;border-color:#185FA5;color:#fff}
-.btn.pr:hover{background:#0C447C}
+.dot{width:13px;height:13px;border-radius:50%;border:1px solid var(--border);background:#ebe9e4;cursor:pointer;transition:background .15s}
+.dot.dok{background:var(--green-md);border-color:var(--green)}
+.dot.dng{background:var(--red-md);border-color:var(--red)}
+.dot.dcr{background:var(--blue);border-color:var(--blue-dk)}
+
+/* NAV */
+.nrow{display:flex;align-items:center;justify-content:space-between;margin-top:1rem}
+.btn{padding:9px 20px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text);transition:background .12s}
+.btn:hover{background:var(--bg)}
+.btn.pr{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.pr:hover{background:var(--blue-dk)}
 .btn:disabled{opacity:.35;cursor:default;pointer-events:none}
-.xp-pop{position:absolute;font-size:12px;font-weight:500;color:#185FA5;pointer-events:none;animation:xpFloat 1.1s ease forwards;white-space:nowrap;z-index:10}
-.toast{background:var(--color-background-primary);border:.5px solid #85B7EB;border-radius:var(--border-radius-lg);padding:10px 14px;margin:8px 0;display:flex;align-items:center;gap:12px;animation:popIn .3s ease both}
-.toast-ico{width:32px;height:32px;background:#E6F1FB;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
-.toast-t{font-size:12px;font-weight:500;color:#042C53}
-.toast-s{font-size:11px;color:#185FA5}
-.res-hero{text-align:center;padding:1.5rem 0 1rem}
-.res-big{font-size:64px;font-weight:500;color:var(--color-text-primary);line-height:1}
-.gd-badge{display:inline-block;margin:8px auto;padding:5px 16px;border-radius:6px;font-size:14px;font-weight:500}
-.res-g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:1rem 0}
-.res-c{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px}
-.res-v{font-size:20px;font-weight:500;color:var(--color-text-primary)}
-.res-l{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
-.xp-row{display:flex;align-items:center;gap:12px;background:#E6F1FB;border-radius:var(--border-radius-md);padding:10px 14px;margin:.75rem 0}
-.xp-row-num{font-size:18px;font-weight:500;color:#042C53}
-.xp-row-lbl{font-size:12px;color:#185FA5}
-.rev-item{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px 14px;margin-bottom:8px;border-left:3px solid transparent;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
-.rev-item.ok{border-left-color:#639922}.rev-item.ng{border-left-color:#E24B4A}
-.rev-q{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px;line-height:1.4}
-.rev-a{font-size:12px;line-height:1.6}
-.a-ok{color:#3B6D11;font-weight:500}.a-ng{color:#A32D2D}
-.rev-exp{font-size:11px;color:var(--color-text-secondary);margin-top:4px;line-height:1.5}
+
+/* TOAST */
+.tst{background:var(--card);border:1px solid var(--blue-md);border-radius:var(--radius);padding:10px 14px;margin:7px 0;display:flex;align-items:center;gap:12px;animation:pop .3s ease both}
+.tst-ico{width:32px;height:32px;background:var(--blue-lt);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.tst-t{font-size:12px;font-weight:700;color:var(--blue-dk)}.tst-s{font-size:11px;color:var(--blue)}
+
+/* XP POP */
+.xpop{position:absolute;font-size:12px;font-weight:700;color:var(--blue);pointer-events:none;animation:xf 1.1s ease forwards;white-space:nowrap;z-index:10}
+
+/* RESULTS */
+.rhr{text-align:center;padding:1.5rem 0 1rem}
+.rbig{font-size:68px;font-weight:800;color:var(--text);line-height:1}
+.gdbdg{display:inline-block;margin:8px auto;padding:5px 18px;border-radius:var(--radius-sm);font-size:14px;font-weight:700}
+.rcg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:.9rem 0}
+.rcc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.rv{font-size:20px;font-weight:700;color:var(--text)}.rl2{font-size:11px;color:var(--muted);margin-top:2px}
+.xp-row{display:flex;align-items:center;gap:12px;background:var(--blue-lt);border:1px solid var(--blue-md);border-radius:var(--radius);padding:10px 14px;margin:.75rem 0}
+.xp-row-n{font-size:18px;font-weight:700;color:var(--blue-dk)}.xp-row-l{font-size:12px;color:var(--blue)}
+
+/* REVIEW */
+.revi{background:var(--card);border:1px solid var(--border);border-left:3px solid transparent;border-radius:0 var(--radius) var(--radius) 0;padding:12px 14px;margin-bottom:8px}
+.revi.ok{border-left-color:var(--green)}.revi.ng{border-left-color:var(--red)}
+.revq{font-size:13px;font-weight:600;color:var(--text);margin-bottom:5px;line-height:1.4}
+.reva{font-size:12px;line-height:1.6}
+.aok{color:var(--green);font-weight:600}.ang{color:var(--red)}
+.revex{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5;border-top:1px dashed var(--border);padding-top:4px;margin-top:6px}
+
+/* TOPIC LEGEND IN TICKET */
+.tpbr{display:flex;gap:6px;flex-wrap:wrap;margin:.5rem 0}
+
+/* ANIMATIONS */
+@keyframes pop{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+@keyframes xf{0%{opacity:0;transform:translateY(0) scale(.8)}40%{opacity:1;transform:translateY(-14px) scale(1.05)}100%{opacity:0;transform:translateY(-30px)}}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.afu{animation:fu .28s ease both}
 </style>
+</head>
+<body>
+<div class="wrap" id="app">
 
-<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Тренажёр по информатике и ИКТ, ДонГУ</h2>
-<div class="app" id="app">
-
-<div class="screen active" id="s-dash">
+<!-- DASHBOARD -->
+<div class="screen on" id="s-dash">
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="lv-badge" id="d-lvbadge">Ур. 1 · Новичок</span>
-      <div class="xpbar-wrap">
-        <div class="xpbar-labels"><span id="d-xpcurr">0 XP</span><span id="d-xpnxt">100</span></div>
-        <div class="xpbar-track"><div class="xpbar-fill" id="d-xpbar" style="width:0%"></div></div>
+      <span class="lv-badge" id="d-lvb">Ур. 1 · Новичок</span>
+      <div class="xbw">
+        <div class="xbl"><span id="d-xc">0 XP</span><span id="d-xn">100</span></div>
+        <div class="xbt"><div class="xbf" id="d-xf" style="width:0%"></div></div>
       </div>
     </div>
-    <span class="streak-pip">&#128293; Серия: <span id="d-streak">0</span></span>
+    <span class="streak">🔥 Серия: <span id="d-sk">0</span></span>
   </div>
-  <div style="text-align:center;padding:1rem 0" class="afu">
+
+  <div class="hero afu">
     <div class="ring-wrap">
-      <svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" fill="none" stroke="#E6F1FB" stroke-width="7"/><circle cx="40" cy="40" r="34" fill="none" stroke="#185FA5" stroke-width="7" stroke-linecap="round" stroke-dasharray="213.6" id="ring-arc" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" style="transition:stroke-dashoffset .9s ease"/></svg>
-      <div class="ring-inner"><span class="ring-num" id="d-rlv">1</span><span class="ring-lbl">уровень</span></div>
+      <svg viewBox="0 0 88 88"><circle cx="44" cy="44" r="36" fill="none" stroke="#ebe9e4" stroke-width="7"/><circle cx="44" cy="44" r="36" fill="none" stroke="#185FA5" stroke-width="7" stroke-linecap="round" stroke-dasharray="226.2" id="rarc" stroke-dashoffset="226.2" transform="rotate(-90 44 44)" style="transition:stroke-dashoffset .9s ease"/></svg>
+      <div class="ring-inner"><span class="ring-num" id="d-rl">1</span><span class="ring-lbl">уровень</span></div>
     </div>
-    <div style="font-size:18px;font-weight:500;color:var(--color-text-primary)" id="d-rank">Новичок</div>
-    <div style="font-size:12px;color:var(--color-text-secondary);margin-top:3px" id="d-xplbl">0 / 100 XP до следующего уровня</div>
+    <div class="hero-rank" id="d-rk">Новичок</div>
+    <div class="hero-xp" id="d-xl">0 / 100 XP до следующего уровня</div>
   </div>
+
   <div class="stat-g afu">
-    <div class="stat-c"><div class="stat-v" id="st-s">0</div><div class="stat-l">сессий</div></div>
-    <div class="stat-c"><div class="stat-v" id="st-b">—</div><div class="stat-l">лучший балл</div></div>
-    <div class="stat-c"><div class="stat-v" id="st-c">0</div><div class="stat-l">верных ответов</div></div>
+    <div class="stat-c"><div class="sv" id="ss">0</div><div class="sl">сессий</div></div>
+    <div class="stat-c"><div class="sv" id="sb">—</div><div class="sl">лучший балл</div></div>
+    <div class="stat-c"><div class="sv" id="sc">0</div><div class="sl">верных ответов</div></div>
   </div>
-  <div class="sec-ttl">Достижения</div>
-  <div class="ach-g" id="ach-grid"></div>
-  <div class="sec-ttl">История сессий</div>
-  <div id="hist-area"><p style="font-size:13px;color:var(--color-text-secondary)">Ещё нет сессий — начни первую!</p></div>
-  <div class="mode-g">
-    <button class="mbtn pr" onclick="startExam(false)"><div class="mbtn-t">Режим экзамена</div><div class="mbtn-d">10 вопросов · 90 мин · без подсказок</div></button>
-    <button class="mbtn" onclick="startExam(true)"><div class="mbtn-t">Режим обучения</div><div class="mbtn-d">Объяснения сразу после ответа</div></button>
-  </div>
+
+  <div class="sec">Достижения</div>
+  <div class="ach-g" id="acg"></div>
+
+  <div class="sec">Экзаменационные билеты · 10 билетов · 10 вопросов каждый</div>
+  <div class="tkg" id="tkg"></div>
+
+  <div class="sec">История сессий</div>
+  <div id="hst"><p style="font-size:13px;color:var(--muted)">Ещё нет завершённых сессий — выберите билет и начните!</p></div>
 </div>
 
+<!-- EXAM -->
 <div class="screen" id="s-exam">
-  <div class="etopbar">
-    <div class="prog-track"><div class="prog-fill" id="e-prog" style="width:10%"></div></div>
-    <div class="sk-chip" id="e-sk" style="display:none">&#128293; <span id="e-skn">0</span></div>
-    <div class="timer-chip" id="e-timer">1:30:00</div>
+  <div class="etb">
+    <div class="prog-t"><div class="prog-f" id="ep" style="width:10%"></div></div>
+    <div class="sk-chip" id="eskch" style="display:none">🔥 <span id="eskn">0</span></div>
+    <div class="tch" id="etm">1:30:00</div>
   </div>
-  <div style="position:relative">
-    <div class="q-card afu" id="q-card">
-      <div class="q-hdr">
-        <span class="q-nr" id="q-nr">Вопрос 1 из 10</span>
-        <span class="q-tp" id="q-tp">Тема</span>
-      </div>
-      <div class="q-txt" id="q-txt"></div>
-    </div>
-    <div class="opts-list" id="opts"></div>
-    <div id="fb-area"></div>
-    <div id="toast-area"></div>
+  <div class="bhead afu" id="bhead">
+    <div class="bh-num" id="bh-num">Билет №1</div>
+    <div class="bh-sub">ДонГУ · Физико-технический факультет · Вступительное испытание по информатике и ИКТ · 2025</div>
   </div>
-  <div class="navrow">
-    <div class="dots" id="dots"></div>
+  <div class="qc afu" id="qc">
+    <div class="qhd"><span class="qnr" id="qnr">Вопрос 1 из 10</span><span class="qtp" id="qtp">Тема</span></div>
+    <div class="qtxt" id="qtxt"></div>
+  </div>
+  <div class="opts-list" id="opts"></div>
+  <div id="fba"></div>
+  <div id="tsta"></div>
+  <div class="nrow">
+    <div class="dots" id="dts"></div>
     <div style="display:flex;gap:8px">
-      <button class="btn" id="b-prev" onclick="go(-1)">← Назад</button>
-      <button class="btn pr" id="b-next" onclick="go(1)">Вперёд →</button>
+      <button class="btn" id="bpv" onclick="go(-1)">← Назад</button>
+      <button class="btn pr" id="bnx" onclick="go(1)">Вперёд →</button>
     </div>
   </div>
 </div>
 
+<!-- RESULTS -->
 <div class="screen" id="s-res">
   <div class="topbar">
-    <span style="font-size:14px;font-weight:500;color:var(--color-text-primary)">Результаты испытания</span>
-    <span class="lv-badge" id="r-lvbadge">Ур. 1</span>
+    <div>
+      <div style="font-size:14px;font-weight:700" id="rh-t">Результаты · Билет №1</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px" id="rh-m">Режим экзамена</div>
+    </div>
+    <span class="lv-badge" id="r-lvb">Ур. 1</span>
   </div>
-  <div class="res-hero afu">
-    <div class="res-big" id="r-score">0</div>
-    <div style="font-size:13px;color:var(--color-text-secondary);margin-top:4px">баллов из 100</div>
-    <div class="gd-badge" id="r-gdbadge"></div>
-    <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px" id="r-status"></div>
+  <div class="rhr afu">
+    <div class="rbig" id="r-sc">0</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:4px">баллов из 100</div>
+    <div class="gdbdg" id="r-gb"></div>
+    <div style="font-size:12px;color:var(--muted);margin-top:4px" id="r-st"></div>
   </div>
-  <div class="xp-row"><div style="font-size:20px">&#11088;</div><div><div class="xp-row-num" id="r-xpgain">+0 XP</div><div class="xp-row-lbl">заработано за сессию</div></div></div>
-  <div class="res-g">
-    <div class="res-c"><div class="res-v" id="r-corr">0/10</div><div class="res-l">правильных</div></div>
-    <div class="res-c"><div class="res-v" id="r-pts">+0</div><div class="res-l">баллов за ответы</div></div>
-    <div class="res-c"><div class="res-v" id="r-mxsk">0</div><div class="res-l">макс. серия</div></div>
+  <div class="xp-row"><div style="font-size:20px">⭐</div><div><div class="xp-row-n" id="r-xp">+0 XP</div><div class="xp-row-l">заработано за сессию</div></div></div>
+  <div class="rcg">
+    <div class="rcc"><div class="rv" id="r-cr">0/10</div><div class="rl2">правильных</div></div>
+    <div class="rcc"><div class="rv" id="r-pt">+0</div><div class="rl2">баллов за ответы</div></div>
+    <div class="rcc"><div class="rv" id="r-ms">0</div><div class="rl2">макс. серия</div></div>
   </div>
-  <div id="r-ach-area"></div>
-  <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin:1rem 0 .5rem">Разбор ответов</div>
-  <div id="r-review"></div>
+  <div id="r-ach"></div>
+  <div class="sec" style="margin-top:1rem">Разбор ответов</div>
+  <div id="r-rev"></div>
   <div style="display:flex;gap:10px;margin-top:1.5rem;justify-content:center;flex-wrap:wrap">
-    <button class="btn pr" onclick="startExam(trainMode)">Пройти ещё раз</button>
-    <button class="btn" onclick="showDash()">На главную</button>
+    <button class="btn pr" onclick="repeatExam()">Повторить этот билет</button>
+    <button class="btn" onclick="showDash()">← К билетам</button>
   </div>
 </div>
 
 </div>
 <script>
-const QS=[
-  {t:"Цифровая грамотность",q:"Что из перечисленного является проприетарным программным обеспечением?",o:["LibreOffice","Linux","Microsoft Windows","Mozilla Firefox"],a:2,e:"Проприетарное ПО — закрытое, коммерческое, с ограничениями на использование. Windows — типичный пример. LibreOffice, Firefox и Linux — свободное ПО."},
-  {t:"Цифровая грамотность",q:"Какой протокол обеспечивает безопасную передачу веб-страниц?",o:["FTP","HTTP","HTTPS","SMTP"],a:2,e:"HTTPS шифрует трафик с помощью TLS. HTTP — незащищённый вариант. FTP — передача файлов, SMTP — отправка почты."},
-  {t:"Цифровая грамотность",q:"Что такое DNS в сети Интернет?",o:["Протокол шифрования","Система доменных имён, переводящая имена в IP-адреса","Межсетевой экран","Тип оптического кабеля"],a:1,e:"DNS (Domain Name System) преобразует доменные имена (google.com) в IP-адреса для маршрутизации пакетов."},
-  {t:"Цифровая грамотность",q:"Резервное копирование — это:",o:["Удаление ненужных файлов","Создание копий данных для восстановления при сбое","Сжатие файлов","Шифрование паролем"],a:1,e:"Backup создаёт копии данных, позволяющие восстановить информацию после отказа оборудования, вируса или случайного удаления."},
-  {t:"Цифровая грамотность",q:"К какому типу ПО относится операционная система?",o:["Прикладное","Системное","Инструментальное","Развлекательное"],a:1,e:"ОС — системное ПО: управляет ресурсами компьютера и обеспечивает работу прикладных программ."},
-  {t:"Цифровая грамотность",q:"Какой адрес является корректным IPv4?",o:["192.168.1.1","2001:0db8::7334","68:A8:6D:1B:8C:5F","https://example.com"],a:0,e:"IPv4-адрес — четыре числа 0–255, разделённые точками. Второй — IPv6, третий — MAC-адрес, четвёртый — URL."},
-  {t:"Теоретические основы",q:"Сколько байт содержит 1 Кбайт (двоичный стандарт)?",o:["1000","1024","512","2048"],a:1,e:"1 Кбайт (KiB) = 2¹⁰ = 1024 байта по двоичному стандарту IEC."},
-  {t:"Теоретические основы",q:"Чему равен информационный объём сообщения «да/нет» (два равновероятных исхода)?",o:["0 бит","1 бит","2 бита","4 бита"],a:1,e:"По формуле Хартли: I = log₂(2) = 1 бит. Один бит — минимальная единица информации при выборе из двух вариантов."},
-  {t:"Теоретические основы",q:"Переведите 1011₂ в десятичную систему:",o:["9","10","11","13"],a:2,e:"1011₂ = 1·8 + 0·4 + 1·2 + 1·1 = 8+0+2+1 = 11₁₀."},
-  {t:"Теоретические основы",q:"Максимальное целое в 8-битовом беззнаковом формате:",o:["127","128","255","256"],a:2,e:"2⁸ = 256 значений. Диапазон беззнакового 8-бит: 0…255."},
-  {t:"Теоретические основы",q:"Число FF₁₆ в десятичной системе:",o:["15","240","255","256"],a:2,e:"FF₁₆ = 15·16 + 15·1 = 240+15 = 255₁₀."},
-  {t:"Теоретические основы",q:"Стандартная таблица ASCII использует:",o:["6 бит","7 бит","8 бит","16 бит"],a:1,e:"Базовая ASCII — 7 бит (128 символов: 0…127). Расширенная ASCII использует 8 бит."},
-  {t:"Теоретические основы",q:"Объём растрового изображения 800×600 пикс., глубина цвета 24 бита (без сжатия):",o:["480 000 бит","1 440 000 бит","1 440 000 байт","480 000 байт"],a:2,e:"800×600 = 480 000 пикс. × 24 бит = 11 520 000 бит = 1 440 000 байт ≈ 1,37 МБ."},
-  {t:"Теоретические основы",q:"Условие Фано для неравномерных кодов гарантирует:",o:["Минимальную длину кода","Однозначное декодирование без разделителей","Равновероятность символов","Помехоустойчивость"],a:1,e:"Условие Фано (prefix-free): ни одно кодовое слово не является префиксом другого — декодирование однозначно."},
-  {t:"Теоретические основы",q:"Скорость канала 1 Мбит/с. Время передачи файла 4 Мбайта:",o:["4 с","8 с","32 с","64 с"],a:2,e:"4 МБ = 32 Мбит. Время = 32 / 1 = 32 секунды."},
-  {t:"Теоретические основы",q:"Переведите 25₁₀ в двоичную систему:",o:["11000₂","11001₂","10101₂","10111₂"],a:1,e:"25→12 ост.1 → 6 ост.0 → 3 ост.0 → 1 ост.1 → 0 ост.1. Читаем снизу: 11001₂."},
-  {t:"Теоретические основы",q:"Unicode предназначен для:",o:["Сжатия текстовых файлов","Единой кодировки символов всех языков мира","Шифрования документов","Форматирования текста"],a:1,e:"Unicode присваивает уникальный код каждому символу любого языка. UTF-8 — самая распространённая реализация."},
-  {t:"Теоретические основы",q:"Число 27₁₀ в восьмеричной системе:",o:["27₈","33₈","37₈","31₈"],a:1,e:"27/8 = 3 ост.3. Итог: 33₈. Проверка: 3×8+3 = 27 ✓"},
-  {t:"Теоретические основы",q:"Результат операции 5 XOR 3 (побитовое исключающее ИЛИ):",o:["1","2","6","8"],a:2,e:"5=101₂, 3=011₂. XOR: 110₂ = 6₁₀. XOR даёт 1, если биты различны."},
-  {t:"Алгоритмы",q:"Что из перечисленного — цикл с постусловием в Pascal?",o:["for i:=1 to 10 do","while условие do","repeat…until условие","if условие then"],a:2,e:"repeat…until — цикл с постусловием: тело выполняется хотя бы один раз, потом проверяется условие выхода."},
-  {t:"Алгоритмы",q:"Метод пузырька — это сортировка через:",o:["Деление пополам","Последовательные сравнения и перестановки соседних элементов","Рекурсивное разбиение","Поиск минимума"],a:1,e:"Пузырьк: на каждом проходе соседние элементы сравниваются и меняются местами, если не по порядку."},
-  {t:"Алгоритмы",q:"Что напечатает фрагмент?\ns=0\nfor i in range(1,5): s+=i\nprint(s)",o:["10","15","4","5"],a:0,e:"range(1,5) = 1,2,3,4. Сумма: 1+2+3+4 = 10."},
-  {t:"Алгоритмы",q:"Тип данных для хранения True/False:",o:["int","float","bool","str"],a:2,e:"Тип bool (булевский) хранит True или False. В Python bool — подкласс int (True=1, False=0)."},
-  {t:"Алгоритмы",q:"НОД чисел 12 и 18 методом перебора:",o:["2","4","6","9"],a:2,e:"Делители 12: 1,2,3,4,6,12. Делители 18: 1,2,3,6,9,18. Общие: 1,2,3,6. Наибольший — 6."},
-  {t:"Алгоритмы",q:"Таблица трассировки алгоритма — это:",o:["Блок-схема","Таблица значений переменных на каждом шаге","Таблица истинности","Список всех переменных"],a:1,e:"Таблица трассировки фиксирует значения переменных на каждом шаге — помогает найти ошибки в алгоритме."},
-  {t:"Алгоритмы",q:"len('Привет') в Python вернёт:",o:["6","5","12","3"],a:0,e:"len() возвращает количество символов. 'Привет' содержит 6 символов."},
-  {t:"Алгоритмы",q:"Линейный поиск в массиве из N элементов (худший случай):",o:["1 сравнение","log₂N сравнений","N сравнений","N² сравнений"],a:2,e:"При линейном поиске в худшем случае просматриваются все N элементов."},
-  {t:"Алгоритмы",q:"Что вернёт f(5), если f(n) = f(n-1)+f(n-2), f(0)=0, f(1)=1?",o:["3","5","8","13"],a:1,e:"f(2)=1, f(3)=2, f(4)=3, f(5)=5. Числа Фибоначчи."},
-  {t:"Алгоритмы",q:"Сортировка выбором — это:",o:["Поиск минимума в неотсортированной части и перестановка его вперёд","Сравнение соседних элементов","Деление массива пополам","Вставка в отсортированную часть"],a:0,e:"Выбором: ищем минимум неотсортированной части, меняем с первым неотсортированным. Повторяем N-1 раз."},
-  {t:"Алгоритмы",q:"Подпрограмма (функция) используется для:",o:["Ускорения компиляции","Повторного использования кода без дублирования","Хранения данных","Форматирования вывода"],a:1,e:"Функции выделяют повторяющийся код в именованный блок — устраняют дублирование и упрощают программу."},
-  {t:"Базы данных",q:"Первичный ключ в реляционной базе данных — это:",o:["Первое поле таблицы","Поле, однозначно идентифицирующее каждую запись","Поле с наибольшим объёмом данных","Числовой идентификатор БД"],a:1,e:"Primary Key — атрибут или набор атрибутов, уникальный для каждой строки и не равный NULL."},
-  {t:"Базы данных",q:"Запрос SELECT * FROM Students WHERE Grade > 4 выбирает:",o:["Все поля всех студентов","Все поля студентов с оценкой больше 4","Только поле Grade","Студентов с оценкой = 4"],a:1,e:"WHERE Grade > 4 — условие строгого неравенства. Выбираются все столбцы (*) строк, где оценка > 4."},
-  {t:"Базы данных",q:"Связь «один ко многим» означает:",o:["По одной записи в каждой таблице","Одна запись первой связана с несколькими второй","Несколько с несколькими","Записи не связаны"],a:1,e:"1:N — самый распространённый тип. Например, один клиент — много заказов. Реализуется внешним ключом."},
-  {t:"Базы данных",q:"Фильтрация записей в базе данных позволяет:",o:["Изменить структуру таблицы","Отобразить только записи, удовлетворяющие условию","Удалить дублирующиеся записи","Объединить таблицы"],a:1,e:"Фильтр отображает лишь строки, подходящие под условие (аналог WHERE). Остальные не удаляются, а скрываются."},
-  {t:"Информационные технологии",q:"Растровая графика отличается от векторной тем, что:",o:["Хранит кривые в виде уравнений","Состоит из пикселей и теряет качество при масштабировании","Всегда занимает меньше места","Не поддерживает цвет"],a:1,e:"Растр — матрица пикселей. При увеличении — «пикселизация». Вектор масштабируется без потерь."},
-  {t:"Информационные технологии",q:"Частота дискретизации 44 100 Гц означает:",o:["Звук воспроизводится 44100 раз/с","44100 замеров амплитуды звука за одну секунду","Максимальная частота звука — 44100 Гц","Размер файла — 44100 байт"],a:1,e:"Частота дискретизации — количество сэмплов в секунду. 44100 Гц (CD Audio) обеспечивает передачу частот до 22050 Гц."},
-  {t:"Информационные технологии",q:"Что из перечисленного НЕ является реляционной СУБД?",o:["MySQL","PostgreSQL","MongoDB","Oracle"],a:2,e:"MongoDB — документо-ориентированная NoSQL СУБД. MySQL, PostgreSQL, Oracle — реляционные СУБД с SQL."},
-  {t:"Информационные технологии",q:"Облачные технологии — это:",o:["Программы на жёстком диске","Предоставление ИТ-ресурсов через Интернет по требованию","Процессоры для больших данных","Беспроводная передача данных"],a:1,e:"Cloud computing — ИТ-ресурсы (вычисления, хранилище, ПО) через Интернет без локальной установки."},
-  {t:"Теоретические основы",q:"Что из перечисленного является логической операцией?",o:["Сложение двух чисел","Конъюнкция (И)","Деление нацело","Возведение в степень"],a:1,e:"Конъюнкция (AND) — булева операция. Результат истинен только если оба операнда истинны."},
-  {t:"Цифровая грамотность",q:"Геолокационный сервис реального времени — пример:",o:["Microsoft Word","Яндекс.Навигатор","Adobe Photoshop","VLC Player"],a:1,e:"Яндекс.Навигатор определяет местоположение в реальном времени и строит маршруты — классический геолокационный сервис."}
-];
-
 const LEVELS=[
-  {min:0,max:99,name:"Новичок"},{min:100,max:249,name:"Ученик"},{min:250,max:449,name:"Студент"},
-  {min:450,max:699,name:"Знаток"},{min:700,max:999,name:"Эксперт"},{min:1000,max:1399,name:"Мастер"},
-  {min:1400,max:99999,name:"Академик"}
+  {n:"Новичок",min:0},{n:"Ученик",min:100},{n:"Студент",min:250},
+  {n:"Знаток",min:450},{n:"Эксперт",min:700},{n:"Мастер",min:1000},{n:"Академик",min:1400}
 ];
 const ACHS=[
-  {id:"first",name:"Первый шаг",desc:"Завершить первую сессию",ico:"&#127891;"},
-  {id:"perfect",name:"Идеальный",desc:"10 из 10 правильно",ico:"&#128081;"},
-  {id:"excellent",name:"Отличник",desc:"Оценка 5 (90+ баллов)",ico:"&#11088;"},
-  {id:"streak5",name:"В потоке",desc:"Серия 5 правильных подряд",ico:"&#128293;"},
-  {id:"speed",name:"Молниеносный",desc:"Завершить за 10 минут",ico:"&#9889;"},
-  {id:"three",name:"Упорный",desc:"Пройти 3 сессии",ico:"&#127942;"},
-  {id:"comeback",name:"Прогресс",desc:"Улучшить предыдущий результат",ico:"&#128200;"}
+  {id:"first",n:"Первый шаг",d:"Завершить первую сессию",i:"🎓"},
+  {id:"perfect",n:"Идеальный результат",d:"10 из 10 правильно",i:"👑"},
+  {id:"exc",n:"Отличник",d:"Оценка 5 (90+ баллов)",i:"⭐"},
+  {id:"sk5",n:"В потоке",d:"Серия 5 правильных",i:"🔥"},
+  {id:"spd",n:"Молниеносный",d:"Завершить за 10 минут",i:"⚡"},
+  {id:"all10",n:"Эрудит",d:"Пройти все 10 билетов",i:"🏆"},
+  {id:"pb",n:"Прогресс",d:"Улучшить лучший результат",i:"📈"}
 ];
 
-let prof={xp:0,sessions:0,bestScore:0,totalCorrect:0,streak:0,maxStreak:0,achievements:[],history:[]};
-let sel=[],ans=[],cur=0,timer,secs=5400,trainMode=false,done=false;
-let curStreak=0,sessionMaxStreak=0,sessionXP=0,newAchs=[];
+const Q=[
+/* БИЛЕТ 1 — индексы 0-9 */
+{t:"ЦГ",q:"К системному программному обеспечению относится:",o:["Microsoft Word","Операционная система","Adobe Photoshop","VLC Media Player"],a:1,e:"ОС управляет ресурсами компьютера — это системное ПО. Word, Photoshop, VLC — прикладное ПО."},
+{t:"ЦГ",q:"Протокол SMTP используется для:",o:["Просмотра веб-страниц","Отправки электронной почты","Передачи файлов","Трансляции доменных имён"],a:1,e:"SMTP (Simple Mail Transfer Protocol) — стандартный протокол отправки электронной почты."},
+{t:"ТО",q:"Число 1101₂ в десятичной системе:",o:["12","13","14","15"],a:1,e:"1·8 + 1·4 + 0·2 + 1·1 = 8+4+0+1 = 13₁₀."},
+{t:"ТО",q:"Объём текста из 1000 символов в однобайтовой кодировке:",o:["1000 бит","1000 байт","8000 байт","500 байт"],a:1,e:"Однобайтовая кодировка: 1 символ = 1 байт. 1000 символов = 1000 байт."},
+{t:"ТО",q:"Логическая операция дизъюнкция (OR): True OR False = ?",o:["True","False","Не определено","0"],a:0,e:"OR истинно, если хотя бы один операнд истинен. True OR False = True."},
+{t:"ТО",q:"1 Гбайт в двоичном стандарте равен:",o:["1000 Мбайт","1024 Мбайт","1024 Кбайт","512 Мбайт"],a:1,e:"1 ГБ = 2³⁰ байт = 1024 МБ по двоичному стандарту IEC."},
+{t:"ИТ",q:"PRIMARY KEY в реляционной БД — это:",o:["Обязательно числовое поле","Поле, уникально идентифицирующее каждую запись","Первое поле таблицы","Поле с наибольшим объёмом данных"],a:1,e:"Первичный ключ однозначно идентифицирует каждую строку таблицы и не может принимать значение NULL."},
+{t:"ИТ",q:"Запрос SELECT * FROM Students WHERE Age > 18 выбирает:",o:["Все записи таблицы","Все поля студентов старше 18 лет","Только поле Age","Студентов с Age = 18"],a:1,e:"WHERE Age > 18 — строгое неравенство. * — все поля. Выбираются строки, где возраст > 18."},
+{t:"АП",q:"Метод «пузырька» — это сортировка через:",o:["Рекурсивное разбиение","Сравнение и перестановку соседних элементов","Поиск минимума","Вставку в отсортированную часть"],a:1,e:"Bubble sort: на каждом проходе сравниваются соседние пары и меняются местами, если не по порядку."},
+{t:"АП",q:"Какие числа генерирует range(1, 6) в Python?",o:["1,2,3,4,5,6","1,2,3,4,5","0,1,2,3,4,5","1,6"],a:1,e:"range(start, stop) — от start включительно до stop исключительно. range(1,6) = 1,2,3,4,5."},
+/* БИЛЕТ 2 — индексы 10-19 */
+{t:"ЦГ",q:"Примером проприетарного программного обеспечения является:",o:["LibreOffice","Linux","Microsoft Windows","Mozilla Firefox"],a:2,e:"Проприетарное ПО — закрытое, с ограниченной лицензией. Windows — типичный пример. LibreOffice, Firefox, Linux — свободное ПО."},
+{t:"ЦГ",q:"HTTPS по умолчанию использует порт:",o:["80","8080","443","21"],a:2,e:"HTTP — порт 80, HTTPS — порт 443 (шифрование TLS/SSL). FTP — порт 21."},
+{t:"ТО",q:"Число FF₁₆ в десятичной системе:",o:["15","240","255","256"],a:2,e:"FF₁₆ = 15×16 + 15×1 = 240 + 15 = 255₁₀."},
+{t:"ТО",q:"Что определяет «1 бит» по содержательному подходу?",o:["8 символов","Количество информации при выборе из 2 равновероятных вариантов","Минимальная единица памяти","Один символ ASCII"],a:1,e:"1 бит — количество информации, устраняющее неопределённость при выборе из 2 равновероятных вариантов (log₂2 = 1)."},
+{t:"ТО",q:"NOT(True) в булевой алгебре равно:",o:["True","False","1","Не определено"],a:1,e:"Операция NOT инвертирует значение. NOT(True) = False."},
+{t:"ТО",q:"Объём растрового изображения 800×600 пикс., глубина 24 бита (без сжатия):",o:["1 440 000 бит","1 440 000 байт","480 000 байт","5 760 000 байт"],a:1,e:"800×600 = 480 000 пикс. × 24 бит = 11 520 000 бит = 1 440 000 байт ≈ 1,37 МБ."},
+{t:"ИТ",q:"Растровая графика в отличие от векторной:",o:["Хранит уравнения кривых","Состоит из пикселей и теряет качество при масштабировании","Всегда занимает меньше места","Не поддерживает цвет"],a:1,e:"Растр — матрица пикселей. При увеличении появляется «пикселизация». Векторная хранит геометрические примитивы."},
+{t:"ИТ",q:"Связь «один ко многим» (1:N) означает:",o:["По одной записи в каждой таблице","Одна запись первой таблицы связана с несколькими записями второй","Несколько с несколькими","Записи не связаны"],a:1,e:"1:N — наиболее частый тип связи. Пример: один клиент — много заказов. Реализуется внешним ключом."},
+{t:"АП",q:"Функция len('Hello') в Python вернёт:",o:["4","5","6","1"],a:1,e:"len() возвращает количество символов. 'Hello' содержит 5 символов."},
+{t:"АП",q:"НОД чисел 12 и 18:",o:["2","4","6","9"],a:2,e:"Общие делители 12 и 18: 1, 2, 3, 6. Наибольший — 6."},
+/* БИЛЕТ 3 — индексы 20-29 */
+{t:"ЦГ",q:"Система DNS предназначена для:",o:["Шифрования данных","Преобразования доменных имён в IP-адреса","Фильтрации трафика","Хранения паролей"],a:1,e:"DNS — распределённая база данных, сопоставляющая доменные имена (google.com) с IP-адресами."},
+{t:"ЦГ",q:"VPN (Virtual Private Network) обеспечивает:",o:["Ускорение Интернета","Шифрованный туннель через публичную сеть","Блокировку рекламы","Антивирусную защиту"],a:1,e:"VPN создаёт зашифрованный канал поверх незащищённой сети для обеспечения конфиденциальности."},
+{t:"ТО",q:"Число 25₁₀ в двоичной системе:",o:["11000₂","11001₂","10101₂","10111₂"],a:1,e:"25→12 ост.1→6 ост.0→3 ост.0→1 ост.1→0 ост.1. Читаем снизу вверх: 11001₂."},
+{t:"ТО",q:"Условие Фано для неравномерных кодов гарантирует:",o:["Минимальную длину кодовых слов","Однозначное декодирование без разделителей","Равновероятность символов","Помехоустойчивость"],a:1,e:"Prefix-free условие: ни одно кодовое слово не является префиксом другого — декодирование однозначно."},
+{t:"ТО",q:"1 Мбайт равен:",o:["1000 Кбайт","1024 Кбайт","1024 байт","1 000 000 бит"],a:1,e:"1 МБ = 2²⁰ байт = 1024 Кбайт по двоичному стандарту."},
+{t:"ТО",q:"Число A₁₆ в десятичной системе:",o:["16","11","10","A"],a:2,e:"В шестнадцатеричной: цифра A = 10₁₀. Цифры A–F соответствуют значениям 10–15."},
+{t:"ИТ",q:"MongoDB в отличие от MySQL является:",o:["Реляционной СУБД","Документо-ориентированной NoSQL-базой","Графовой базой данных","Колончатой СУБД"],a:1,e:"MongoDB — документо-ориентированная NoSQL СУБД. MySQL и Oracle — реляционные СУБД с поддержкой SQL."},
+{t:"ИТ",q:"Частота дискретизации звука 44 100 Гц означает:",o:["Звук воспроизводится 44100 раз/с","44100 измерений амплитуды за 1 секунду","Максимальная воспроизводимая частота — 44100 Гц","Размер одного сэмпла — 44100 байт"],a:1,e:"Частота дискретизации — количество сэмплов в секунду. 44100 Гц (Audio CD) обеспечивает передачу до 22050 Гц."},
+{t:"АП",q:"Функция f(5), если f(0)=0, f(1)=1, f(n)=f(n-1)+f(n-2):",o:["3","5","8","13"],a:1,e:"f(2)=1, f(3)=2, f(4)=3, f(5)=5. Это числа Фибоначчи."},
+{t:"АП",q:"Таблица трассировки алгоритма — это:",o:["Блок-схема","Таблица значений переменных на каждом шаге","Таблица истинности","Список переменных"],a:1,e:"Таблица трассировки фиксирует значения переменных пошагово — удобный инструмент отладки алгоритмов."},
+/* БИЛЕТ 4 — индексы 30-39 */
+{t:"ЦГ",q:"Резервное копирование — это:",o:["Удаление временных файлов","Создание копий данных для восстановления при сбое","Сжатие данных","Шифрование файлов паролем"],a:1,e:"Backup — копии данных, позволяющие восстановить информацию после отказа, вируса или случайного удаления."},
+{t:"ЦГ",q:"Фишинг (phishing) — это:",o:["Вид спортивного рыболовства","Мошенничество для кражи конфиденциальных данных","Тип вируса-шифровальщика","Метод взлома Wi-Fi"],a:1,e:"Фишинг — социальная инженерия: поддельные сайты/письма создаются для кражи логинов, паролей, данных карт."},
+{t:"ТО",q:"Число 27₁₀ в восьмеричной системе:",o:["27₈","33₈","37₈","30₈"],a:1,e:"27 ÷ 8 = 3 ост. 3. Результат: 33₈. Проверка: 3×8+3 = 27 ✓"},
+{t:"ТО",q:"Результат операции 5 XOR 3:",o:["1","2","6","8"],a:2,e:"5=101₂, 3=011₂. Побитовый XOR: 1⊕0=1, 0⊕1=1, 1⊕1=0 → 110₂ = 6₁₀."},
+{t:"ТО",q:"Алфавит 256 символов (равновероятных): информационный вес символа:",o:["4 бита","6 бит","8 бит","16 бит"],a:2,e:"I = log₂(256) = log₂(2⁸) = 8 бит на символ (алфавитный подход)."},
+{t:"ТО",q:"Скорость 1 Мбит/с, файл 4 Мбайта. Время передачи:",o:["4 с","8 с","32 с","64 с"],a:2,e:"4 МБ = 4×8 = 32 Мбит. Время = 32 ÷ 1 = 32 секунды."},
+{t:"ИТ",q:"Облачные технологии — это:",o:["Программы на локальном диске","Предоставление ИТ-ресурсов через Интернет по требованию","Специализированные процессоры для нейросетей","Технология 5G"],a:1,e:"Cloud computing — вычисления, хранилище, ПО предоставляются через Интернет без локальной установки."},
+{t:"ИТ",q:"Функция СРЗНАЧ в электронных таблицах вычисляет:",o:["Сумму диапазона","Среднее арифметическое диапазона","Максимальное значение","Количество ячеек"],a:1,e:"СРЗНАЧ (AVERAGE) = сумма всех значений ÷ количество значений."},
+{t:"АП",q:"Тип данных bool хранит:",o:["Целые числа 0–255","Только True или False","Строки до 8 символов","Числа с плавающей точкой"],a:1,e:"bool — логический тип. Принимает два значения: True (истина) и False (ложь)."},
+{t:"АП",q:"Сортировка выбором (selection sort) работает так:",o:["На каждом шаге находит минимум неотсортированной части и ставит его на место","Сравнивает соседние элементы","Рекурсивно делит массив","Вставляет в нужную позицию"],a:0,e:"Selection sort: ищем минимум в неотсортированной части, меняем с первым неотсортированным. Повторяем N-1 раз."},
+/* БИЛЕТ 5 — индексы 40-49 */
+{t:"ЦГ",q:"Брандмауэр (firewall) предназначен для:",o:["Ускорения сети","Фильтрации сетевого трафика по заданным правилам","Шифрования диска","Сканирования вирусов"],a:1,e:"Брандмауэр анализирует входящий/исходящий трафик и блокирует пакеты, не соответствующие правилам безопасности."},
+{t:"ЦГ",q:"IoT (Интернет вещей) — это концепция:",o:["Замены Интернета новым протоколом","Подключения физических устройств к Интернету для обмена данными","Защиты корпоративных сетей","Виртуальной реальности"],a:1,e:"IoT: физические устройства (датчики, техника, транспорт) подключены к Интернету и обмениваются данными автоматически."},
+{t:"ТО",q:"Двоичное сложение: 1111₂ + 1₂ = ?",o:["10000₂","11110₂","1111₂","10001₂"],a:0,e:"1111+1: перенос по всем разрядам → 10000₂. Проверка: 15+1 = 16 = 10000₂ ✓"},
+{t:"ТО",q:"Символ кириллицы в кодировке UTF-8 занимает:",o:["1 байт","2 байта","3 байта","4 байта"],a:1,e:"Кириллица (U+0400–U+04FF) кодируется в UTF-8 двумя байтами (диапазон двухбайтовых символов UTF-8)."},
+{t:"ТО",q:"Число 63₁₀ в двоичной системе:",o:["110111₂","111110₂","111111₂","100000₂"],a:2,e:"63 = 32+16+8+4+2+1 = 2⁶−1 = 111111₂ (шесть единиц)."},
+{t:"ТО",q:"Количество информации о 1 из 8 равновероятных событий:",o:["1 бит","2 бита","3 бита","8 бит"],a:2,e:"I = log₂(8) = log₂(2³) = 3 бита по формуле Хартли."},
+{t:"ИТ",q:"Нормализация реляционной БД проводится для:",o:["Ускорения выборки","Устранения избыточности и аномалий обновления","Увеличения объёма данных","Шифрования данных"],a:1,e:"Нормализация — приведение схемы к нормальным формам для устранения избыточности и аномалий вставки/обновления/удаления."},
+{t:"ИТ",q:"Формат JPEG используется для:",o:["Векторной графики","Фотографий с плавными переходами цветов (с потерями)","Анимированных изображений","Текстовых документов"],a:1,e:"JPEG — формат сжатия с потерями, эффективный для фотографий. Не подходит для схем и текста (артефакты сжатия)."},
+{t:"АП",q:"Линейный поиск в массиве из N элементов (худший случай):",o:["1 сравнение","log₂N","N сравнений","N/2"],a:2,e:"При линейном поиске в худшем случае (элемент отсутствует или последний) просматриваются все N элементов."},
+{t:"АП",q:"Что выведет: for i in range(5): print(i)",o:["0 1 2 3 4 5","1 2 3 4 5","0 1 2 3 4","1 2 3 4"],a:2,e:"range(5) = 0,1,2,3,4. Выводятся пять чисел: 0, 1, 2, 3, 4."},
+/* БИЛЕТ 6 — индексы 50-59 */
+{t:"ЦГ",q:"Суперкомпьютеры отличаются от обычных ПК прежде всего:",o:["Большим экраном","Параллельной архитектурой с тысячами процессоров","Работой только на Linux","Отсутствием ОС"],a:1,e:"Суперкомпьютеры используют массовый параллелизм (тысячи–миллионы ядер) для задач, недоступных обычным ПК."},
+{t:"ЦГ",q:"Сигнатурный антивирус определяет вирусы методом:",o:["Анализа поведения программы","Сравнения кода с базой известных вирусных сигнатур","Изоляции подозрительных процессов","Шифрования исполняемых файлов"],a:1,e:"Сигнатурный метод: антивирус сравнивает файлы с базой хэшей/паттернов известных вирусов. Требует обновлений."},
+{t:"ТО",q:"Число 77₈ в десятичной системе:",o:["56","63","71","77"],a:1,e:"77₈ = 7×8 + 7×1 = 56 + 7 = 63₁₀."},
+{t:"ТО",q:"1 Кбайт в двоичном стандарте равен:",o:["1000 байт","1024 байт","512 байт","2048 байт"],a:1,e:"1 Кбайт (KiB) = 2¹⁰ = 1024 байта по двоичному стандарту IEC."},
+{t:"ТО",q:"Конъюнкция (AND): True AND False = ?",o:["True","False","Не определено","1"],a:1,e:"AND истинно только если оба операнда истинны. True AND False = False."},
+{t:"ТО",q:"Скорость 56 кбит/с, файл 700 КБ. Время передачи примерно:",o:["12 с","56 с","100 с","700 с"],a:2,e:"700 КБ = 700×8×1024 = 5 734 400 бит. 5 734 400 ÷ 56 000 ≈ 102 секунды."},
+{t:"ИТ",q:"Индекс в реляционной БД создаётся для:",o:["Шифрования столбца","Ускорения поиска и выборки данных","Ограничения доступа","Хранения изображений"],a:1,e:"Индекс — структура данных (обычно B-дерево), ускоряющая операции SELECT/WHERE за счёт упорядоченного списка."},
+{t:"ИТ",q:"Слайд-мастер в программе для презентаций — это:",o:["Главный слайд, задающий единый стиль для всех слайдов","Инструмент анимации","Слайд с оглавлением","Финальный слайд"],a:0,e:"Слайд-мастер определяет шаблон оформления (фон, шрифты, цвета) для всей презентации сразу."},
+{t:"АП",q:"Рекурсия — это:",o:["Вызов одной функции из другой","Функция, которая вызывает саму себя","Бесконечный цикл","Обработка исключений"],a:1,e:"Рекурсивная функция вызывает себя с уменьшенным аргументом, пока не достигнет базового условия (base case)."},
+{t:"АП",q:"Двоичный поиск применяется только к:",o:["Любому массиву","Отсортированному массиву","Массиву уникальных элементов","Массиву не менее 100 элементов"],a:1,e:"Двоичный поиск делит отсортированный массив пополам — O(log n). Для неотсортированных данных неприменим."},
+/* БИЛЕТ 7 — индексы 60-69 */
+{t:"ЦГ",q:"MAC-адрес сетевого устройства — это:",o:["Адрес веб-страницы","Физический адрес сетевого адаптера","IP-адрес в локальной сети","Идентификатор Wi-Fi сети"],a:1,e:"MAC-адрес — уникальный 48-битный аппаратный идентификатор сетевого интерфейса (формат: 6 пар HEX-цифр)."},
+{t:"ЦГ",q:"Социальная инженерия в ИБ — это:",o:["Профессия сисадмина","Манипуляция людьми для получения конфиденциальной информации","Метод взлома шифрования","Разработка соцсетей"],a:1,e:"Социальная инженерия эксплуатирует человеческий фактор (доверие, страх), а не технические уязвимости."},
+{t:"ТО",q:"Двоичное вычитание: 1010₂ − 0011₂ = ?",o:["0110₂","0111₂","1001₂","1100₂"],a:1,e:"1010−0011 = 0111₂. Проверка: 10−3 = 7 = 0111₂ ✓"},
+{t:"ТО",q:"Глубина цвета 8 бит позволяет закодировать:",o:["8 цветов","16 цветов","64 цвета","256 цветов"],a:3,e:"2⁸ = 256 различных цветов. 16 бит → 65 536; 24 бит → ~16,7 млн (True Color)."},
+{t:"ТО",q:"Число 26₁₀ в шестнадцатеричной системе:",o:["16₁₆","1A₁₆","2A₁₆","1B₁₆"],a:1,e:"26 = 1×16 + 10 = 1A₁₆ (A = 10 в шестнадцатеричной)."},
+{t:"ТО",q:"Скорость 2 Мбит/с, файл 1 Мбайт. Время передачи:",o:["1 с","2 с","4 с","8 с"],a:2,e:"1 МБ = 8 Мбит. Время = 8 ÷ 2 = 4 секунды."},
+{t:"ИТ",q:"SQL-оператор JOIN используется для:",o:["Удаления записей","Объединения данных из нескольких таблиц","Создания индекса","Изменения структуры таблицы"],a:1,e:"JOIN объединяет строки из двух и более таблиц на основе условия связи (обычно по ключевому полю)."},
+{t:"ИТ",q:"Машинное обучение с учителем (supervised learning) — это:",o:["Обучение без размеченных данных","Обучение на данных с известными правильными ответами","Обучение методом проб и ошибок","Обучение на правилах экспертов"],a:1,e:"В обучении с учителем алгоритм тренируется на размеченных парах (вход→ответ). Применяется для классификации и регрессии."},
+{t:"АП",q:"'abcde'[::-1] в Python возвращает:",o:["'abcde'","'edcba'","'ace'","Ошибку"],a:1,e:"Срез [::-1] разворачивает последовательность (шаг -1 = перебор с конца). 'abcde'[::-1] = 'edcba'."},
+{t:"АП",q:"Сортировка вставками (insertion sort) работает так:",o:["Находит минимум и ставит в начало","Берёт элемент и вставляет в правильное место отсортированной части","Делит массив пополам","Меняет соседние элементы"],a:1,e:"Insertion sort поддерживает отсортированный префикс, вставляя каждый новый элемент в нужную позицию сдвигами."},
+/* БИЛЕТ 8 — индексы 70-79 */
+{t:"ЦГ",q:"BIOS/UEFI — это:",o:["ОС для серверов","Встроенное ПО, инициализирующее оборудование при включении ПК","Антивирусная программа","Драйвер видеокарты"],a:1,e:"BIOS/UEFI — микропрограмма материнской платы: выполняет POST (проверку оборудования) и передаёт управление загрузчику ОС."},
+{t:"ЦГ",q:"«Троянская программа» — это вредоносное ПО, которое:",o:["Размножается по сети самостоятельно","Маскируется под легальную программу и скрытно выполняет вредоносные действия","Шифрует файлы с требованием выкупа","Перегружает сервер запросами"],a:1,e:"Троян скрыт внутри полезной программы. В отличие от вируса/червя не размножается самостоятельно."},
+{t:"ТО",q:"Двоичное умножение: 101₂ × 10₂ = ?",o:["101₂","1000₂","1010₂","1100₂"],a:2,e:"Умножение на 10₂ = умножение на 2 = сдвиг влево на 1 разряд. 101₂ → 1010₂. Проверка: 5×2=10=1010₂ ✓"},
+{t:"ТО",q:"Стандарт Unicode предназначен для:",o:["Сжатия текстовых файлов","Единой кодировки символов всех языков мира","Шифрования данных","Форматирования документов"],a:1,e:"Unicode присваивает уникальный code point каждому символу любого языка. UTF-8/16/32 — его реализации."},
+{t:"ТО",q:"Число 0.5₁₀ в двоичной системе:",o:["0.01₂","0.1₂","0.11₂","1.0₂"],a:1,e:"0.5 × 2 = 1.0 → первый разряд = 1, остаток 0. Итог: 0.1₂. Проверка: 2⁻¹ = 0.5 ✓"},
+{t:"ТО",q:"Диапазон значений 8-битового знакового целого (дополнительный код):",o:["0...255","-127...127","-128...127","-128...128"],a:2,e:"8-битовое знаковое (two's complement): от −2⁷ = −128 до 2⁷−1 = 127. Всего 256 значений."},
+{t:"ИТ",q:"Формат SVG (Scalable Vector Graphics) — это:",o:["Формат растрового изображения","Формат векторной графики на основе XML","Формат видео","Формат баз данных"],a:1,e:"SVG — открытый стандарт W3C для векторных изображений в XML. Масштабируется без потери качества."},
+{t:"ИТ",q:"Классификация в анализе данных — это задача:",o:["Предсказания числового значения","Отнесения объекта к одному из заранее известных классов","Группировки без меток","Уменьшения размерности"],a:1,e:"Классификация: модель обучается на размеченных примерах и предсказывает класс для новых объектов (спам/не спам)."},
+{t:"АП",q:"Алгоритм — это:",o:["Программа на конкретном языке","Конечная последовательность точных инструкций для решения задачи","Блок-схема без условий","Таблица данных"],a:1,e:"Алгоритм: конечная, однозначная, результативная последовательность инструкций, решающая задачу за конечное время."},
+{t:"АП",q:"Что выведет: x=5; if x%2==0: print('чётное') else: print('нечётное')",o:["чётное","нечётное","0","Ошибку"],a:1,e:"5 % 2 = 1 (остаток). 1 ≠ 0 → условие ложно → выполняется else → 'нечётное'."},
+/* БИЛЕТ 9 — индексы 80-89 */
+{t:"ЦГ",q:"Cookies в браузере — это:",o:["Вредоносные программы","Небольшие файлы данных, сохраняемые сервером на компьютере пользователя","Кэш изображений","Файлы шифрования трафика"],a:1,e:"Cookies — текстовые файлы, в которых браузер хранит данные сеансов, предпочтений, авторизации по запросу сервера."},
+{t:"ЦГ",q:"Инкрементальное резервное копирование — это:",o:["Полная копия всех файлов","Копирование только файлов, изменённых с момента последнего backup","Копирование только системных файлов","Автоматическое удаление старых копий"],a:1,e:"Инкрементальный backup копирует только изменённые с последней резервной копии файлы — быстрее и компактнее полного."},
+{t:"ТО",q:"NOT(True AND False) по законам булевой алгебры:",o:["True","False","Не определено","0"],a:0,e:"True AND False = False. NOT(False) = True."},
+{t:"ТО",q:"Число 255₁₀ в шестнадцатеричной системе:",o:["EF₁₆","F0₁₆","FE₁₆","FF₁₆"],a:3,e:"255 = 15×16 + 15 = FF₁₆. F в HEX = 15₁₀."},
+{t:"ТО",q:"Объём 1 мин. стерео-звука: 44100 Гц, 16 бит, 2 канала (без сжатия):",o:["5 292 000 байт","10 584 000 байт","2 646 000 байт","1 440 000 байт"],a:1,e:"44100 × (16÷8) × 2 × 60 = 44100 × 2 × 2 × 60 = 10 584 000 байт ≈ 10,1 МБ."},
+{t:"ТО",q:"Число 1A₁₆ в десятичной системе:",o:["10","16","26","28"],a:2,e:"1A₁₆ = 1×16 + A×1 = 16 + 10 = 26₁₀."},
+{t:"ИТ",q:"GIF отличается от JPEG тем, что:",o:["Лучше сжимает фотографии","Поддерживает анимацию и прозрачность","Использует меньше цветов","Не поддерживается в браузерах"],a:1,e:"GIF поддерживает анимацию (несколько кадров) и прозрачность, но ограничен палитрой 256 цветов."},
+{t:"ИТ",q:"ГИС (геоинформационные системы) используются для:",o:["Управления серверами","Работы с пространственными данными и цифровыми картами","Разработки мобильных приложений","Хранения бухгалтерских данных"],a:1,e:"ГИС — системы для сбора, хранения, анализа и визуализации географической (пространственной) информации."},
+{t:"АП",q:"Для проверки числа N на простоту достаточно делить на числа до:",o:["N","N/2","√N","N−1"],a:2,e:"Достаточно проверять делители до √N: если делитель > √N, то парный делитель < √N уже был проверен."},
+{t:"АП",q:"Двумерный массив (матрица) — это:",o:["Массив, где элементы могут повторяться","Массив из массивов, образующий строки и столбцы","Связный список с двумя указателями","Очередь с двумя концами"],a:1,e:"Двумерный массив индексируется [i][j]: i — строка, j — столбец. Используется для хранения матриц, таблиц."},
+/* БИЛЕТ 10 — индексы 90-99 */
+{t:"ЦГ",q:"Веб-сервер — это:",o:["Браузер для просмотра сайтов","Программа или компьютер, обслуживающий HTTP/HTTPS-запросы клиентов","Поисковая система","Хостинг-провайдер"],a:1,e:"Веб-сервер (Apache, Nginx, IIS) принимает HTTP-запросы и возвращает клиенту HTML-страницы или другие ресурсы."},
+{t:"ЦГ",q:"Лицензия GPL (GNU General Public License) требует:",o:["Платы за использование","Чтобы производные работы распространялись на тех же условиях (copyleft)","Закрытости исходного кода","Использования только в некоммерческих целях"],a:1,e:"GPL — copyleft-лицензия: производное ПО обязано распространяться под GPL — гарантирует 'вирусную' свободу."},
+{t:"ТО",q:"Двоичное сложение: 100₂ + 011₂ = ?",o:["111₂","1001₂","110₂","1000₂"],a:0,e:"100₂ + 011₂: 0+1=1, 0+1=1, 1+0=1 → 111₂. Проверка: 4+3=7=111₂ ✓"},
+{t:"ТО",q:"Текст из 8 символов в ASCII (7 бит на символ) занимает:",o:["8 байт","56 бит","64 бита","7 байт"],a:1,e:"8 символов × 7 бит = 56 бит (в байтах при хранении — 8 байт, но в 7-битной ASCII — 56 бит)."},
+{t:"ТО",q:"Логическая операция: False OR False = ?",o:["True","False","Не определено","1"],a:1,e:"OR истинно при хотя бы одном истинном операнде. False OR False = False (оба ложны)."},
+{t:"ТО",q:"Алфавит из 32 символов (равновероятных). Информационный вес символа:",o:["4 бита","5 бит","6 бит","8 бит"],a:1,e:"I = log₂(32) = log₂(2⁵) = 5 бит на символ."},
+{t:"ИТ",q:"Микроконтроллер отличается от микропроцессора тем, что:",o:["Работает быстрее","Содержит на одном чипе процессор, память и периферию","Предназначен только для суперкомпьютеров","Не поддерживает языки программирования"],a:1,e:"Микроконтроллер — «компьютер на кристалле»: CPU + RAM + Flash + GPIO на одном чипе. Используется во встроенных системах."},
+{t:"ИТ",q:"Обучение без учителя (unsupervised learning) применяется для:",o:["Классификации по известным меткам","Кластеризации и поиска закономерностей в данных без меток","Регрессионного прогнозирования","Обучения с подкреплением"],a:1,e:"Без учителя: алгоритм ищет структуру в данных (кластеры, аномалии, снижение размерности). Пример — k-means."},
+{t:"АП",q:"Цикл while — это цикл:",o:["С фиксированным числом итераций","С предусловием: выполняется, пока условие истинно","С постусловием: выполняется хотя бы один раз","Бесконечный цикл"],a:1,e:"while condition: тело выполняется, пока condition = True. Если условие ложно изначально — тело не выполнится ни разу."},
+{t:"АП",q:"sum([1, 2, 3, 4, 5]) в Python вернёт:",o:["5","10","15","12"],a:2,e:"sum() суммирует все элементы списка: 1+2+3+4+5 = 15."}
+];
 
-async function loadProfile(){
-  try{
-    const r=await window.storage.get('inf-profile');
-    if(r&&r.value){prof=JSON.parse(r.value);}
-  }catch(e){}
-  renderDash();
-}
-async function saveProfile(){
-  try{await window.storage.set('inf-profile',JSON.stringify(prof));}catch(e){}
+const TDEFS=[
+  {num:1,qs:[0,1,2,3,4,5,6,7,8,9]},
+  {num:2,qs:[10,11,12,13,14,15,16,17,18,19]},
+  {num:3,qs:[20,21,22,23,24,25,26,27,28,29]},
+  {num:4,qs:[30,31,32,33,34,35,36,37,38,39]},
+  {num:5,qs:[40,41,42,43,44,45,46,47,48,49]},
+  {num:6,qs:[50,51,52,53,54,55,56,57,58,59]},
+  {num:7,qs:[60,61,62,63,64,65,66,67,68,69]},
+  {num:8,qs:[70,71,72,73,74,75,76,77,78,79]},
+  {num:9,qs:[80,81,82,83,84,85,86,87,88,89]},
+  {num:10,qs:[90,91,92,93,94,95,96,97,98,99]}
+];
+
+const TNAMES={'ЦГ':'Цифровая грамотность','ТО':'Теор. основы','ИТ':'Информ. технологии','АП':'Алгоритмы'};
+const TCLASS={'ЦГ':'cg','ТО':'to','ИТ':'it','АП':'ap'};
+const L=['А','Б','В','Г'];
+
+let prof={xp:0,sessions:0,bestScore:0,totalCorrect:0,maxStreak:0,achievements:[],history:[],doneTickets:[]};
+let curTN=1,curQs=[],ans=[],cur=0,secs=5400,tmr,trainMode=false,done=false;
+let csk=0,mxsk=0,sxp=0,nacs=[];
+
+function getLv(xp){
+  for(let i=LEVELS.length-1;i>=0;i--)if(xp>=LEVELS[i].min)return{idx:i+1,...LEVELS[i]};
+  return{idx:1,...LEVELS[0]};
 }
 
-function getLevel(xp){
-  for(let i=LEVELS.length-1;i>=0;i--){if(xp>=LEVELS[i].min)return{num:i+1,...LEVELS[i]};}
-  return{num:1,...LEVELS[0]};
-}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
+function showDash(){renderDash();show('s-dash');}
 
 function renderDash(){
-  const lv=getLevel(prof.xp);
-  const nextMin=LEVELS[lv.num]?LEVELS[lv.num].min:LEVELS[LEVELS.length-1].max;
-  const pct=Math.round(((prof.xp-lv.min)/(nextMin-lv.min))*100);
-  document.getElementById('d-lvbadge').textContent=`Ур. ${lv.num} · ${lv.name}`;
-  document.getElementById('d-rlv').textContent=lv.num;
-  document.getElementById('d-rank').textContent=lv.name;
-  document.getElementById('d-xpcurr').textContent=`${prof.xp} XP`;
-  document.getElementById('d-xpnxt').textContent=nextMin;
-  document.getElementById('d-xplbl').textContent=`${prof.xp} / ${nextMin} XP до следующего уровня`;
-  document.getElementById('d-xpbar').style.width=Math.min(pct,100)+'%';
-  document.getElementById('d-streak').textContent=prof.maxStreak;
-  document.getElementById('st-s').textContent=prof.sessions;
-  document.getElementById('st-b').textContent=prof.bestScore||'—';
-  document.getElementById('st-c').textContent=prof.totalCorrect;
-  const arc=document.getElementById('ring-arc');
-  arc.style.strokeDashoffset=213.6*(1-Math.min(pct,100)/100);
+  const lv=getLv(prof.xp);
+  const nx=LEVELS[lv.idx]?LEVELS[lv.idx].min:9999;
+  const pct=Math.min(100,Math.round(((prof.xp-lv.min)/(nx-lv.min))*100));
+  document.getElementById('d-lvb').textContent=`Ур. ${lv.idx} · ${lv.n}`;
+  document.getElementById('d-rl').textContent=lv.idx;
+  document.getElementById('d-rk').textContent=lv.n;
+  document.getElementById('d-xc').textContent=`${prof.xp} XP`;
+  document.getElementById('d-xn').textContent=nx;
+  document.getElementById('d-xl').textContent=`${prof.xp} / ${nx} XP до следующего уровня`;
+  document.getElementById('d-xf').style.width=pct+'%';
+  document.getElementById('d-sk').textContent=prof.maxStreak||0;
+  document.getElementById('rarc').style.strokeDashoffset=226.2*(1-pct/100);
+  document.getElementById('ss').textContent=prof.sessions||0;
+  document.getElementById('sb').textContent=prof.bestScore||'—';
+  document.getElementById('sc').textContent=prof.totalCorrect||0;
 
-  const ag=document.getElementById('ach-grid');
-  ag.innerHTML='';
+  const ag=document.getElementById('acg');ag.innerHTML='';
   ACHS.forEach(a=>{
     const on=(prof.achievements||[]).includes(a.id);
-    const d=document.createElement('div');
-    d.className='ach-c'+(on?' on':'');
-    d.innerHTML=`<div class="ach-ico">${a.ico}</div><div><div class="ach-nm">${a.name}</div><div class="ach-ds">${a.desc}</div></div>`;
+    const d=document.createElement('div');d.className='ach-c'+(on?' on':'');
+    d.innerHTML=`<div class="ach-ico">${a.i}</div><div><div class="ach-n">${a.n}</div><div class="ach-d">${a.d}</div></div>`;
     ag.appendChild(d);
   });
 
-  const ha=document.getElementById('hist-area');
-  if(!prof.history||!prof.history.length){ha.innerHTML='<p style="font-size:13px;color:var(--color-text-secondary)">Ещё нет сессий — начни первую!</p>';return;}
+  const tg=document.getElementById('tkg');tg.innerHTML='';
+  TDEFS.forEach(td=>{
+    const done2=(prof.doneTickets||[]).includes(td.num);
+    const hist=(prof.history||[]).filter(h=>h.ticket===td.num);
+    const best=hist.length?Math.max(...hist.map(h=>h.score)):null;
+    const qs=td.qs.map(i=>Q[i]);
+    const topics=[...new Set(qs.map(q=>q.t))];
+    const d=document.createElement('div');d.className='tkc'+(done2?' done':'');
+    d.innerHTML=`
+      <div class="tk-hd">
+        <span class="tk-num">Билет №${td.num}</span>
+        ${best!==null?`<span class="tk-score ok">${best} балл.</span>`:`<span class="tk-score new">не пройден</span>`}
+      </div>
+      <div class="tp-pills">${topics.map(t=>`<span class="tp ${TCLASS[t]||''}">${t}</span>`).join('')}</div>
+      <div class="tk-btns">
+        <button class="tkb pr" onclick="startExam(${td.num},false)">Экзамен</button>
+        <button class="tkb" onclick="startExam(${td.num},true)">Обучение</button>
+      </div>`;
+    tg.appendChild(d);
+  });
+
+  const ha=document.getElementById('hst');
+  if(!prof.history||!prof.history.length){ha.innerHTML='<p style="font-size:13px;color:var(--muted)">Ещё нет завершённых сессий</p>';return;}
   ha.innerHTML='';
-  prof.history.slice().reverse().forEach(h=>{
+  [...(prof.history||[])].reverse().slice(0,10).forEach(h=>{
     const gc=h.score>=90?'g5':h.score>=75?'g4':h.score>=60?'g3':'g2';
-    const gt=h.score>=90?'5 — Отлично':h.score>=75?'4 — Хорошо':h.score>=60?'3 — Удовл.':'2 — Неудовл.';
-    const r=document.createElement('div');
-    r.className='hist-row';
-    r.innerHTML=`<div><span class="hist-sc">${h.score}</span><span style="font-size:12px;color:var(--color-text-secondary);margin-left:6px">баллов</span></div><div style="display:flex;align-items:center;gap:8px"><span class="hist-grade ${gc}">${gt}</span><span class="hist-mt">${h.corr}/10 верных</span></div>`;
+    const gt=h.score>=90?'Отлично':h.score>=75?'Хорошо':h.score>=60?'Удовл.':'Неудовл.';
+    const r=document.createElement('div');r.className='h-row';
+    r.innerHTML=`<div><span class="h-sc">${h.score}</span><span style="font-size:11px;color:var(--muted);margin-left:6px">балл.</span>${h.ticket?` &nbsp;Билет №${h.ticket}`:''}</div><div style="display:flex;align-items:center;gap:8px"><span class="h-gd ${gc}">${gt}</span><span class="h-meta">${h.corr}/10 · ${h.mode||''}</span></div>`;
     ha.appendChild(r);
   });
 }
 
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
-function showDash(){renderDash();show('s-dash');}
-
-function shuffle(a){return[...a].sort(()=>Math.random()-.5);}
-
-function startExam(train){
-  trainMode=train;
-  sel=shuffle(QS).slice(0,10);
-  ans=new Array(10).fill(-1);
-  cur=0;done=false;secs=5400;curStreak=0;sessionMaxStreak=0;sessionXP=0;newAchs=[];
-  clearInterval(timer);
-  timer=setInterval(()=>{if(done){clearInterval(timer);return;}secs--;updateTimer();if(secs<=0){clearInterval(timer);finish();}},1000);
-  show('s-exam');
-  renderQ();
+function startExam(tnum,train){
+  curTN=tnum;trainMode=train;
+  const td=TDEFS.find(t=>t.num===tnum);
+  curQs=td.qs.map(i=>Q[i]);
+  ans=new Array(10).fill(-1);cur=0;secs=5400;done=false;csk=0;mxsk=0;sxp=0;nacs=[];
+  clearInterval(tmr);
+  tmr=setInterval(()=>{if(done){clearInterval(tmr);return;}secs--;updTimer();if(secs<=0){clearInterval(tmr);finish();}},1000);
+  document.getElementById('bh-num').textContent=`Билет №${tnum}`;
+  document.getElementById('eskch').style.display='none';
+  show('s-exam');renderQ();
 }
 
-function updateTimer(){
+function updTimer(){
   const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
-  const el=document.getElementById('e-timer');
+  const el=document.getElementById('etm');
   el.textContent=`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  el.className='timer-chip'+(secs<300?' crit':secs<900?' warn':'');
+  el.className='tch'+(secs<300?' crit':secs<900?' warn':'');
 }
 
 function renderQ(){
-  const q=sel[cur];
-  document.getElementById('e-prog').style.width=((cur+1)*10)+'%';
-  document.getElementById('q-nr').textContent=`Вопрос ${cur+1} из 10`;
-  document.getElementById('q-tp').textContent=q.t;
-  document.getElementById('q-txt').textContent=q.q;
-  const skc=document.getElementById('e-sk');
-  if(curStreak>=2){skc.style.display='flex';document.getElementById('e-skn').textContent=curStreak;}
-  else{skc.style.display='none';}
-  document.getElementById('b-prev').disabled=cur===0;
-  document.getElementById('b-next').textContent=cur===9?'Завершить':'Вперёд →';
-  renderOpts();
-  renderDots();
-  document.getElementById('fb-area').innerHTML='';
-  document.getElementById('toast-area').innerHTML='';
-  if(trainMode&&ans[cur]>=0)showFeedback(ans[cur]===q.a,q);
+  const q=curQs[cur];
+  document.getElementById('ep').style.width=((cur+1)*10)+'%';
+  document.getElementById('qnr').textContent=`Вопрос ${cur+1} из 10`;
+  document.getElementById('qtp').textContent=TNAMES[q.t]||q.t;
+  document.getElementById('qtxt').innerHTML=q.q.replace(/\n/g,'<br>');
+  if(csk>=2){document.getElementById('eskch').style.display='flex';document.getElementById('eskn').textContent=csk;}
+  else document.getElementById('eskch').style.display='none';
+  document.getElementById('bpv').disabled=cur===0;
+  document.getElementById('bnx').textContent=cur===9?'Завершить':'Вперёд →';
+  renderOpts();renderDots();
+  document.getElementById('fba').innerHTML='';
+  document.getElementById('tsta').innerHTML='';
+  if(trainMode&&ans[cur]>=0)showFb(ans[cur]===q.a,q);
 }
 
 function renderOpts(){
-  const q=sel[cur];const L=['А','Б','В','Г'];
+  const q=curQs[cur];
   const ol=document.getElementById('opts');ol.innerHTML='';
   q.o.forEach((opt,i)=>{
-    const b=document.createElement('button');
-    b.className='opt';
-    const answered=ans[cur]>=0;
-    if(answered){
-      if(i===q.a)b.classList.add('ok');
-      else if(i===ans[cur])b.classList.add('ng');
-      b.disabled=true;
-    }
+    const b=document.createElement('button');b.className='opt';
+    if(ans[cur]>=0){if(i===q.a)b.classList.add('ok');else if(i===ans[cur])b.classList.add('ng');b.disabled=true;}
     b.innerHTML=`<span class="opt-l">${L[i]}</span><span>${opt}</span>`;
     b.onclick=()=>pick(i);
     ol.appendChild(b);
@@ -381,61 +536,54 @@ function renderOpts(){
 }
 
 function renderDots(){
-  const dc=document.getElementById('dots');dc.innerHTML='';
+  const dc=document.getElementById('dts');dc.innerHTML='';
   for(let i=0;i<10;i++){
     const d=document.createElement('div');
-    d.className='dot'+(i===cur?' c-cur':ans[i]>=0?(ans[i]===sel[i].a?' c-ok':' c-ng'):'');
+    d.className='dot'+(i===cur?' dcr':ans[i]>=0?(ans[i]===curQs[i].a?' dok':' dng'):'');
     d.onclick=(ii=>()=>{cur=ii;renderQ();})(i);
     dc.appendChild(d);
   }
 }
 
-function showFeedback(ok,q){
-  const a=document.getElementById('fb-area');
-  a.innerHTML=`<div class="fb ${ok?'ok-fb':'ng-fb'}"><div class="fb-head">${ok?'Верно!':'Неверно'}</div>${q.e}</div>`;
+function showFb(ok,q){
+  document.getElementById('fba').innerHTML=`<div class="fb ${ok?'ok':'ng'}"><div class="fb-h">${ok?'✓ Верно!':'✗ Неверно'}</div>${q.e}</div>`;
+}
+
+function showToast(ico,t,s){
+  const a=document.getElementById('tsta');
+  const d=document.createElement('div');d.className='tst';
+  d.innerHTML=`<div class="tst-ico">${ico}</div><div><div class="tst-t">${t}</div><div class="tst-s">${s}</div></div>`;
+  a.appendChild(d);setTimeout(()=>d.remove(),3500);
 }
 
 function floatXP(pts){
-  const wrap=document.getElementById('q-card');
-  const sp=document.createElement('span');
-  sp.className='xp-pop';sp.textContent=`+${pts} XP`;
-  sp.style.top='10px';sp.style.right='14px';
-  wrap.style.position='relative';
-  wrap.appendChild(sp);
-  setTimeout(()=>sp.remove(),1200);
+  const el=document.getElementById('qc');
+  const sp=document.createElement('span');sp.className='xpop';sp.textContent=`+${pts} XP`;
+  sp.style.top='8px';sp.style.right='12px';
+  el.appendChild(sp);setTimeout(()=>sp.remove(),1200);
 }
 
-function showToast(ico,title,sub){
-  const a=document.getElementById('toast-area');
-  const d=document.createElement('div');d.className='toast';
-  d.innerHTML=`<div class="toast-ico">${ico}</div><div><div class="toast-t">${title}</div><div class="toast-s">${sub}</div></div>`;
-  a.appendChild(d);setTimeout(()=>d.remove(),3000);
-}
-
-function unlockAch(id){
+function unlAch(id){
   if((prof.achievements||[]).includes(id))return false;
   if(!prof.achievements)prof.achievements=[];
-  prof.achievements.push(id);newAchs.push(id);return true;
+  prof.achievements.push(id);nacs.push(id);return true;
 }
 
 function pick(i){
-  if(ans[cur]>=0)return;
-  ans[cur]=i;
-  const q=sel[cur];const ok=i===q.a;
+  if(ans[cur]>=0)return;ans[cur]=i;
+  const q=curQs[cur];const ok=i===q.a;
   if(ok){
-    curStreak++;if(curStreak>sessionMaxStreak)sessionMaxStreak=curStreak;
+    csk++;if(csk>mxsk)mxsk=csk;
     let pts=10;
-    if(curStreak===3){pts+=5;showToast('&#128293;','Серия 3!','Бонус +5 XP');}
-    if(curStreak===5){pts+=10;showToast('&#128293;','Серия 5!','Бонус +10 XP');unlockAch('streak5')&&showToast(ACHS.find(a=>a.id==='streak5').ico,'Достижение: В потоке!','Серия 5 правильных');}
-    if(curStreak===7)showToast('&#9889;','Серия 7!','Невероятно!');
-    sessionXP+=pts;floatXP(pts);
-  }else{
-    curStreak=0;
-  }
+    if(csk===3){pts+=5;showToast('🔥','Серия 3!','+5 XP бонус');}
+    if(csk===5){pts+=10;showToast('🔥','Серия 5!','+10 XP бонус');unlAch('sk5')&&showToast('🔥','Достижение: В потоке','Серия 5 правильных подряд!');}
+    if(csk>=7)showToast('⚡','Серия '+csk+'!','Феноменально!');
+    sxp+=pts;floatXP(pts);
+  }else{csk=0;}
   renderOpts();renderDots();
-  if(trainMode)showFeedback(ok,q);
-  document.getElementById('e-sk').style.display=curStreak>=2?'flex':'none';
-  if(curStreak>=2)document.getElementById('e-skn').textContent=curStreak;
+  if(trainMode)showFb(ok,q);
+  if(csk>=2){document.getElementById('eskch').style.display='flex';document.getElementById('eskn').textContent=csk;}
+  else document.getElementById('eskch').style.display='none';
 }
 
 function go(d){
@@ -443,64 +591,69 @@ function go(d){
   cur=Math.max(0,Math.min(9,cur+d));renderQ();
 }
 
+function repeatExam(){startExam(curTN,trainMode);}
+
 function finish(){
-  done=true;clearInterval(timer);
-  const L=['А','Б','В','Г'];
-  let corr=0;
-  sel.forEach((q,i)=>{if(ans[i]===q.a)corr++;});
-  const taskPts=corr*4;const total=60+taskPts;
-  const timeTaken=5400-secs;
-
-  if(corr===10){sessionXP+=30;unlockAch('perfect');}
-  if(total>=90){sessionXP+=20;unlockAch('excellent');}
-  else if(total>=75){sessionXP+=10;}
-  if(timeTaken<600)unlockAch('speed');
-  if(!prof.sessions)unlockAch('first');
+  done=true;clearInterval(tmr);
+  let corr=0;curQs.forEach((q,i)=>{if(ans[i]===q.a)corr++;});
+  const tp=corr*4,total=60+tp,timeTaken=5400-secs;
+  if(corr===10){sxp+=30;unlAch('perfect');}
+  if(total>=90){sxp+=20;unlAch('exc');}else if(total>=75)sxp+=10;
+  if(timeTaken<600)unlAch('spd');
+  if(!(prof.sessions))unlAch('first');
   prof.sessions=(prof.sessions||0)+1;
-  if(prof.sessions>=3)unlockAch('three');
-  if(prof.bestScore&&total>prof.bestScore)unlockAch('comeback');
+  if(!prof.doneTickets)prof.doneTickets=[];
+  if(!prof.doneTickets.includes(curTN))prof.doneTickets.push(curTN);
+  if(prof.doneTickets.length>=10)unlAch('all10');
+  if(prof.bestScore&&total>prof.bestScore)unlAch('pb');
   if(!prof.bestScore||total>prof.bestScore)prof.bestScore=total;
-  prof.xp=(prof.xp||0)+sessionXP;
+  prof.xp=(prof.xp||0)+sxp;
   prof.totalCorrect=(prof.totalCorrect||0)+corr;
-  prof.maxStreak=Math.max(prof.maxStreak||0,sessionMaxStreak);
+  prof.maxStreak=Math.max(prof.maxStreak||0,mxsk);
   if(!prof.history)prof.history=[];
-  prof.history.push({score:total,corr,time:timeTaken});
-  if(prof.history.length>5)prof.history.shift();
-  saveProfile();
+  prof.history.push({score:total,corr,ticket:curTN,mode:trainMode?'обучение':'экзамен'});
+  if(prof.history.length>30)prof.history.shift();
+  try{localStorage.setItem('infdongu',JSON.stringify(prof));}catch(e){}
 
-  const lv=getLevel(prof.xp);
-  document.getElementById('r-lvbadge').textContent=`Ур. ${lv.num} · ${lv.name}`;
-  document.getElementById('r-score').textContent=total;
+  const lv=getLv(prof.xp);
+  document.getElementById('rh-t').textContent=`Результаты · Билет №${curTN}`;
+  document.getElementById('rh-m').textContent=trainMode?'Режим обучения':'Режим экзамена';
+  document.getElementById('r-lvb').textContent=`Ур. ${lv.idx} · ${lv.n}`;
+  document.getElementById('r-sc').textContent=total;
   const gc=total>=90?'g5':total>=75?'g4':total>=60?'g3':'g2';
-  const gt=total>=90?'5 — Отлично':total>=75?'4 — Хорошо':total>=60?'3 — Удовлетворительно':'2 — Неудовлетворительно';
-  const gb=document.getElementById('r-gdbadge');
-  gb.className='gd-badge '+gc;gb.textContent=gt;
-  document.getElementById('r-status').textContent=total>=44?'Порог пройден (минимум 44 балла)':'Минимальный порог не преодолён (нужно 44+ балла)';
-  document.getElementById('r-xpgain').textContent=`+${sessionXP} XP`;
-  document.getElementById('r-corr').textContent=`${corr}/10`;
-  document.getElementById('r-pts').textContent=`+${taskPts}`;
-  document.getElementById('r-mxsk').textContent=sessionMaxStreak;
+  const gt=total>=90?'5 — Отлично':total>=75?'4 — Хорошо':total>=60?'3 — Удовл.':'2 — Неудовл.';
+  const gb=document.getElementById('r-gb');gb.className='gdbdg '+gc;gb.textContent=gt;
+  document.getElementById('r-st').textContent=total>=44?'✓ Вступительное испытание успешно пройдено (порог: 44 балла)':'✗ Минимальный порог не преодолён (нужно 44+ балла)';
+  document.getElementById('r-xp').textContent=`+${sxp} XP`;
+  document.getElementById('r-cr').textContent=`${corr}/10`;
+  document.getElementById('r-pt').textContent=`+${tp}`;
+  document.getElementById('r-ms').textContent=mxsk;
 
-  const ra=document.getElementById('r-ach-area');ra.innerHTML='';
-  if(newAchs.length){
-    const h=document.createElement('div');h.className='sec-ttl';h.style.marginTop='1rem';h.textContent='Новые достижения';ra.appendChild(h);
-    newAchs.forEach(id=>{
+  const ra=document.getElementById('r-ach');ra.innerHTML='';
+  if(nacs.length){
+    const h=document.createElement('div');h.className='sec';h.style.marginTop='1rem';h.textContent='Новые достижения';ra.appendChild(h);
+    nacs.forEach(id=>{
       const ac=ACHS.find(a=>a.id===id);if(!ac)return;
-      const d=document.createElement('div');d.className='toast';
-      d.innerHTML=`<div class="toast-ico">${ac.ico}</div><div><div class="toast-t">Разблокировано: ${ac.name}</div><div class="toast-s">${ac.desc}</div></div>`;
+      const d=document.createElement('div');d.className='tst';
+      d.innerHTML=`<div class="tst-ico">${ac.i}</div><div><div class="tst-t">Разблокировано: ${ac.n}</div><div class="tst-s">${ac.d}</div></div>`;
       ra.appendChild(d);
     });
   }
 
-  const rv=document.getElementById('r-review');rv.innerHTML='';
-  sel.forEach((q,i)=>{
+  const rv=document.getElementById('r-rev');rv.innerHTML='';
+  curQs.forEach((q,i)=>{
     const ok=ans[i]===q.a;
-    const d=document.createElement('div');d.className=`rev-item ${ok?'ok':'ng'}`;
-    d.innerHTML=`<div class="rev-q">${i+1}. ${q.q}</div><div class="rev-a"><span class="${ok?'a-ok':'a-ng'}">Ваш ответ: ${ans[i]>=0?L[ans[i]]+') '+q.o[ans[i]]:'не отвечено'}</span>${!ok?`<br><span class="a-ok">Правильно: ${L[q.a]}) ${q.o[q.a]}</span>`:''}</div><div class="rev-exp">${q.e}</div>`;
+    const d=document.createElement('div');d.className=`revi ${ok?'ok':'ng'}`;
+    d.innerHTML=`<div class="revq">${i+1}. ${q.q.replace(/\n/g,' ')}</div><div class="reva"><span class="${ok?'aok':'ang'}">Ваш ответ: ${ans[i]>=0?L[ans[i]]+') '+q.o[ans[i]]:'не отвечено'}</span>${!ok?`<br><span class="aok">Правильно: ${L[q.a]}) ${q.o[q.a]}</span>`:''}</div><div class="revex">${q.e}</div>`;
     rv.appendChild(d);
   });
   show('s-res');
 }
 
-loadProfile();
+(function init(){
+  try{const s=localStorage.getItem('infdongu');if(s)prof=JSON.parse(s);}catch(e){}
+  renderDash();
+})();
 </script>
+</body>
+</html>
