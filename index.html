@@ -1,314 +1,506 @@
 
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  .exam-wrap { font-family: var(--font-sans); padding: 1.5rem 0; }
-  .exam-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 1rem; }
-  .exam-title-block h2 { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
-  .exam-title-block p { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
-  .timer-block { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-  .timer-label { font-size: 11px; color: var(--color-text-secondary); }
-  .timer-value { font-size: 22px; font-weight: 500; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
-  .timer-value.warn { color: #BA7517; }
-  .timer-value.danger { color: #A32D2D; }
-  .progress-bar-wrap { height: 3px; background: var(--color-background-secondary); border-radius: 2px; margin-bottom: 1.5rem; }
-  .progress-bar-fill { height: 3px; background: #185FA5; border-radius: 2px; transition: width 0.4s; }
-  .question-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-  .q-counter { font-size: 12px; color: var(--color-text-secondary); }
-  .q-topic { font-size: 11px; padding: 3px 10px; border-radius: 99px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
-  .question-text { font-size: 15px; font-weight: 500; color: var(--color-text-primary); line-height: 1.6; margin-bottom: 1.25rem; }
-  .options-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.5rem; }
-  .option-btn { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px 14px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; text-align: left; font-size: 14px; color: var(--color-text-primary); transition: border-color 0.15s, background 0.15s; line-height: 1.5; }
-  .option-btn:hover:not(:disabled) { border-color: var(--color-border-secondary); background: var(--color-background-secondary); }
-  .option-btn.selected { border-color: #185FA5; background: #E6F1FB; color: #042C53; }
-  .option-btn.correct { border-color: #3B6D11; background: #EAF3DE; color: #173404; }
-  .option-btn.wrong { border-color: #A32D2D; background: #FCEBEB; color: #501313; }
-  .opt-letter { font-size: 11px; font-weight: 500; min-width: 20px; height: 20px; border-radius: 4px; background: var(--color-background-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
-  .option-btn.selected .opt-letter { background: #B5D4F4; color: #042C53; }
-  .option-btn.correct .opt-letter { background: #C0DD97; color: #173404; }
-  .option-btn.wrong .opt-letter { background: #F7C1C1; color: #501313; }
-  .nav-row { display: flex; justify-content: space-between; align-items: center; }
-  .nav-btn { padding: 9px 20px; border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); }
-  .nav-btn:hover { background: var(--color-background-secondary); }
-  .nav-btn.primary { background: #185FA5; border-color: #185FA5; color: #fff; }
-  .nav-btn.primary:hover { background: #0C447C; }
-  .nav-btn:disabled { opacity: 0.4; cursor: default; }
-  .score-dots { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
-  .score-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); }
-  .score-dot.answered { background: #B5D4F4; border-color: #185FA5; }
-  .score-dot.current { background: #185FA5; border-color: #0C447C; }
-  .result-screen { display: none; }
-  .result-score-big { font-size: 56px; font-weight: 500; color: var(--color-text-primary); text-align: center; }
-  .result-label { font-size: 13px; color: var(--color-text-secondary); text-align: center; margin-top: 4px; margin-bottom: 1.5rem; }
-  .result-grade { text-align: center; font-size: 28px; font-weight: 500; margin-bottom: 0.25rem; }
-  .result-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 1.5rem 0; }
-  .result-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; }
-  .rc-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; }
-  .rc-value { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
-  .review-list { display: flex; flex-direction: column; gap: 8px; margin: 1rem 0; }
-  .review-item { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px 14px; }
-  .review-item.ok { border-left: 3px solid #639922; }
-  .review-item.fail { border-left: 3px solid #A32D2D; }
-  .review-q { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; line-height: 1.4; }
-  .review-answers { font-size: 12px; color: var(--color-text-secondary); line-height: 1.6; }
-  .review-correct { color: #3B6D11; font-weight: 500; }
-  .review-wrong { color: #A32D2D; }
-  .start-screen { text-align: center; padding: 2rem 0; }
-  .start-screen h2 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.5rem; }
-  .start-screen p { font-size: 13px; color: var(--color-text-secondary); max-width: 400px; margin: 0 auto 1.5rem; line-height: 1.6; }
-  .start-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 1.5rem auto; max-width: 420px; }
-  .start-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px; }
-  .sc-val { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
-  .sc-lbl { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
-  .explain-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 14px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-top: 10px; border-left: 3px solid #639922; }
+*{box-sizing:border-box;margin:0;padding:0}
+.app{font-family:var(--font-sans);padding:1.5rem 0}
+.screen{display:none}.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(0.88)}to{opacity:1;transform:scale(1)}}
+@keyframes xpFloat{0%{opacity:0;transform:translateY(0) scale(.85)}40%{opacity:1;transform:translateY(-14px) scale(1.05)}100%{opacity:0;transform:translateY(-32px)}}
+@keyframes streakPulse{0%,100%{background:#FAEEDA}50%{background:#FAC775}}
+.afu{animation:fadeUp .3s ease both}.apo{animation:popIn .25s ease both}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding-bottom:1rem;border-bottom:.5px solid var(--color-border-tertiary);margin-bottom:1.25rem}
+.lv-badge{background:#E6F1FB;color:#042C53;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;border:.5px solid #85B7EB}
+.xpbar-wrap{width:110px}
+.xpbar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--color-text-secondary);margin-bottom:3px}
+.xpbar-track{height:5px;background:var(--color-background-secondary);border-radius:3px}
+.xpbar-fill{height:5px;background:#185FA5;border-radius:3px;transition:width .7s ease}
+.streak-pip{display:flex;align-items:center;gap:5px;background:#FAEEDA;color:#412402;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:500;border:.5px solid #EF9F27}
+.ring-wrap{width:80px;height:80px;margin:0 auto 10px;position:relative}
+.ring-wrap svg{width:80px;height:80px}
+.ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-num{font-size:22px;font-weight:500;color:var(--color-text-primary);line-height:1}
+.ring-lbl{font-size:9px;color:var(--color-text-secondary);margin-top:2px}
+.stat-g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:1rem 0}
+.stat-c{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.stat-v{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.stat-l{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.sec-ttl{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:.06em;text-transform:uppercase;margin:1.25rem 0 .75rem}
+.ach-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.ach-c{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;display:flex;align-items:flex-start;gap:10px;opacity:.5}
+.ach-c.on{opacity:1;border-color:#85B7EB;background:#E6F1FB}
+.ach-ico{width:28px;height:28px;border-radius:6px;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.ach-c.on .ach-ico{background:#B5D4F4}
+.ach-nm{font-size:12px;font-weight:500;color:var(--color-text-primary);line-height:1.3}
+.ach-c.on .ach-nm{color:#042C53}
+.ach-ds{font-size:11px;color:var(--color-text-secondary);margin-top:2px;line-height:1.4}
+.ach-c.on .ach-ds{color:#185FA5}
+.hist-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:.5px solid var(--color-border-tertiary)}
+.hist-row:last-child{border:none}
+.hist-sc{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.hist-gd{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500}
+.g5{background:#EAF3DE;color:#173404}.g4{background:#E6F1FB;color:#042C53}.g3{background:#FAEEDA;color:#412402}.g2{background:#FCEBEB;color:#501313}
+.hist-mt{font-size:11px;color:var(--color-text-secondary)}
+.mode-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:1.25rem}
+.mbtn{background:var(--color-background-primary);border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:14px 16px;cursor:pointer;text-align:left}
+.mbtn:hover{background:var(--color-background-secondary)}
+.mbtn.pr{border:2px solid #185FA5;background:#E6F1FB}
+.mbtn.pr:hover{background:#B5D4F4}
+.mbtn-t{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.mbtn.pr .mbtn-t{color:#042C53}
+.mbtn-d{font-size:11px;color:var(--color-text-secondary);line-height:1.4}
+.mbtn.pr .mbtn-d{color:#185FA5}
+.etopbar{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem}
+.prog-track{flex:1;height:6px;background:var(--color-background-secondary);border-radius:3px}
+.prog-fill{height:6px;background:#185FA5;border-radius:3px;transition:width .4s ease}
+.timer-chip{display:flex;align-items:center;gap:4px;background:var(--color-background-secondary);border-radius:6px;padding:5px 10px;font-size:13px;font-weight:500;color:var(--color-text-primary);font-variant-numeric:tabular-nums;border:.5px solid var(--color-border-tertiary);flex-shrink:0}
+.timer-chip.warn{background:#FAEEDA;color:#412402;border-color:#EF9F27}
+.timer-chip.crit{background:#FCEBEB;color:#501313;border-color:#E24B4A}
+.sk-chip{display:flex;align-items:center;gap:4px;background:#FAEEDA;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:500;color:#412402;border:.5px solid #EF9F27;flex-shrink:0}
+.q-card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem}
+.q-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.q-nr{font-size:12px;color:var(--color-text-secondary)}
+.q-tp{font-size:11px;padding:3px 8px;border-radius:4px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:.5px solid var(--color-border-tertiary)}
+.q-txt{font-size:15px;font-weight:500;color:var(--color-text-primary);line-height:1.6}
+.opts-list{display:flex;flex-direction:column;gap:8px}
+.opt{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:11px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--color-text-primary);line-height:1.5;transition:border-color .12s,background .12s;width:100%}
+.opt:hover:not(:disabled){border-color:var(--color-border-secondary);background:var(--color-background-secondary)}
+.opt:disabled{cursor:default}
+.opt.sel{border-color:#378ADD;background:#E6F1FB;color:#042C53}
+.opt.ok{border-color:#639922;background:#EAF3DE;color:#173404}
+.opt.ng{border-color:#E24B4A;background:#FCEBEB;color:#501313}
+.opt-l{width:22px;height:22px;border-radius:5px;background:var(--color-background-secondary);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;color:var(--color-text-secondary)}
+.opt.sel .opt-l{background:#85B7EB;color:#042C53}
+.opt.ok .opt-l{background:#97C459;color:#173404}
+.opt.ng .opt-l{background:#F09595;color:#501313}
+.fb{border-radius:var(--border-radius-md);padding:10px 14px;font-size:13px;line-height:1.6;margin:8px 0;border-left:3px solid;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
+.fb.ok-fb{background:#EAF3DE;color:#173404;border-color:#639922}
+.fb.ng-fb{background:#FCEBEB;color:#501313;border-color:#E24B4A}
+.fb-head{font-weight:500;margin-bottom:3px;font-size:12px}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dot{width:13px;height:13px;border-radius:50%;border:.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);cursor:pointer;transition:background .2s}
+.dot.c-ok{background:#C0DD97;border-color:#639922}
+.dot.c-ng{background:#F7C1C1;border-color:#E24B4A}
+.dot.c-cur{background:#185FA5;border-color:#0C447C}
+.navrow{display:flex;align-items:center;justify-content:space-between;margin-top:1rem}
+.btn{padding:9px 18px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;border:.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary)}
+.btn:hover{background:var(--color-background-secondary)}
+.btn.pr{background:#185FA5;border-color:#185FA5;color:#fff}
+.btn.pr:hover{background:#0C447C}
+.btn:disabled{opacity:.35;cursor:default;pointer-events:none}
+.xp-pop{position:absolute;font-size:12px;font-weight:500;color:#185FA5;pointer-events:none;animation:xpFloat 1.1s ease forwards;white-space:nowrap;z-index:10}
+.toast{background:var(--color-background-primary);border:.5px solid #85B7EB;border-radius:var(--border-radius-lg);padding:10px 14px;margin:8px 0;display:flex;align-items:center;gap:12px;animation:popIn .3s ease both}
+.toast-ico{width:32px;height:32px;background:#E6F1FB;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.toast-t{font-size:12px;font-weight:500;color:#042C53}
+.toast-s{font-size:11px;color:#185FA5}
+.res-hero{text-align:center;padding:1.5rem 0 1rem}
+.res-big{font-size:64px;font-weight:500;color:var(--color-text-primary);line-height:1}
+.gd-badge{display:inline-block;margin:8px auto;padding:5px 16px;border-radius:6px;font-size:14px;font-weight:500}
+.res-g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:1rem 0}
+.res-c{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px}
+.res-v{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.res-l{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.xp-row{display:flex;align-items:center;gap:12px;background:#E6F1FB;border-radius:var(--border-radius-md);padding:10px 14px;margin:.75rem 0}
+.xp-row-num{font-size:18px;font-weight:500;color:#042C53}
+.xp-row-lbl{font-size:12px;color:#185FA5}
+.rev-item{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px 14px;margin-bottom:8px;border-left:3px solid transparent;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
+.rev-item.ok{border-left-color:#639922}.rev-item.ng{border-left-color:#E24B4A}
+.rev-q{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px;line-height:1.4}
+.rev-a{font-size:12px;line-height:1.6}
+.a-ok{color:#3B6D11;font-weight:500}.a-ng{color:#A32D2D}
+.rev-exp{font-size:11px;color:var(--color-text-secondary);margin-top:4px;line-height:1.5}
 </style>
 
-<div class="exam-wrap" id="app">
-  <div class="start-screen" id="start-screen">
-    <h2>Тренажёр по информатике и ИКТ</h2>
-    <p>Вступительное испытание · ДонГУ · Физико-технический факультет. Выберите режим и начните тренировку.</p>
-    <div class="start-info">
-      <div class="start-card"><div class="sc-val">10</div><div class="sc-lbl">вопросов</div></div>
-      <div class="start-card"><div class="sc-val">90</div><div class="sc-lbl">минут</div></div>
-      <div class="start-card"><div class="sc-val">100</div><div class="sc-lbl">макс. баллов</div></div>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:1rem;">
-      <button class="nav-btn primary" onclick="startExam(false)">Режим экзамена</button>
-      <button class="nav-btn" onclick="startExam(true)">Режим обучения (с подсказками)</button>
-    </div>
-    <p style="margin-top:1rem;font-size:11px;color:var(--color-text-secondary);">В режиме обучения после каждого ответа показывается правильный вариант</p>
-  </div>
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Тренажёр по информатике и ИКТ, ДонГУ</h2>
+<div class="app" id="app">
 
-  <div id="exam-screen" style="display:none;">
-    <div class="exam-header">
-      <div class="exam-title-block">
-        <h2>Вступительное испытание — Информатика и ИКТ</h2>
-        <p id="mode-label">Режим экзамена</p>
-      </div>
-      <div class="timer-block">
-        <span class="timer-label">Осталось времени</span>
-        <span class="timer-value" id="timer">1:30:00</span>
+<div class="screen active" id="s-dash">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="lv-badge" id="d-lvbadge">Ур. 1 · Новичок</span>
+      <div class="xpbar-wrap">
+        <div class="xpbar-labels"><span id="d-xpcurr">0 XP</span><span id="d-xpnxt">100</span></div>
+        <div class="xpbar-track"><div class="xpbar-fill" id="d-xpbar" style="width:0%"></div></div>
       </div>
     </div>
-    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar" style="width:10%"></div></div>
-    <div class="question-meta">
-      <span class="q-counter" id="q-counter">Вопрос 1 из 10</span>
-      <span class="q-topic" id="q-topic">Тема</span>
-    </div>
-    <div class="question-text" id="question-text"></div>
-    <div class="options-list" id="options-list"></div>
-    <div id="explain-area"></div>
-    <div class="nav-row">
-      <div class="score-dots" id="score-dots"></div>
-      <div style="display:flex;gap:8px;">
-        <button class="nav-btn" id="btn-prev" onclick="navigate(-1)" disabled>← Назад</button>
-        <button class="nav-btn primary" id="btn-next" onclick="navigate(1)">Вперёд →</button>
-      </div>
-    </div>
+    <span class="streak-pip">&#128293; Серия: <span id="d-streak">0</span></span>
   </div>
+  <div style="text-align:center;padding:1rem 0" class="afu">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" fill="none" stroke="#E6F1FB" stroke-width="7"/><circle cx="40" cy="40" r="34" fill="none" stroke="#185FA5" stroke-width="7" stroke-linecap="round" stroke-dasharray="213.6" id="ring-arc" stroke-dashoffset="213.6" transform="rotate(-90 40 40)" style="transition:stroke-dashoffset .9s ease"/></svg>
+      <div class="ring-inner"><span class="ring-num" id="d-rlv">1</span><span class="ring-lbl">уровень</span></div>
+    </div>
+    <div style="font-size:18px;font-weight:500;color:var(--color-text-primary)" id="d-rank">Новичок</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-top:3px" id="d-xplbl">0 / 100 XP до следующего уровня</div>
+  </div>
+  <div class="stat-g afu">
+    <div class="stat-c"><div class="stat-v" id="st-s">0</div><div class="stat-l">сессий</div></div>
+    <div class="stat-c"><div class="stat-v" id="st-b">—</div><div class="stat-l">лучший балл</div></div>
+    <div class="stat-c"><div class="stat-v" id="st-c">0</div><div class="stat-l">верных ответов</div></div>
+  </div>
+  <div class="sec-ttl">Достижения</div>
+  <div class="ach-g" id="ach-grid"></div>
+  <div class="sec-ttl">История сессий</div>
+  <div id="hist-area"><p style="font-size:13px;color:var(--color-text-secondary)">Ещё нет сессий — начни первую!</p></div>
+  <div class="mode-g">
+    <button class="mbtn pr" onclick="startExam(false)"><div class="mbtn-t">Режим экзамена</div><div class="mbtn-d">10 вопросов · 90 мин · без подсказок</div></button>
+    <button class="mbtn" onclick="startExam(true)"><div class="mbtn-t">Режим обучения</div><div class="mbtn-d">Объяснения сразу после ответа</div></button>
+  </div>
+</div>
 
-  <div class="result-screen" id="result-screen">
-    <div class="exam-header">
-      <div class="exam-title-block"><h2>Результаты испытания</h2><p>ДонГУ · Физико-технический факультет</p></div>
+<div class="screen" id="s-exam">
+  <div class="etopbar">
+    <div class="prog-track"><div class="prog-fill" id="e-prog" style="width:10%"></div></div>
+    <div class="sk-chip" id="e-sk" style="display:none">&#128293; <span id="e-skn">0</span></div>
+    <div class="timer-chip" id="e-timer">1:30:00</div>
+  </div>
+  <div style="position:relative">
+    <div class="q-card afu" id="q-card">
+      <div class="q-hdr">
+        <span class="q-nr" id="q-nr">Вопрос 1 из 10</span>
+        <span class="q-tp" id="q-tp">Тема</span>
+      </div>
+      <div class="q-txt" id="q-txt"></div>
     </div>
-    <div class="result-score-big" id="res-score"></div>
-    <div class="result-label">итоговый балл (шкала 100)</div>
-    <div class="result-grade" id="res-grade"></div>
-    <div style="font-size:13px;color:var(--color-text-secondary);text-align:center;margin-bottom:1rem;" id="res-status"></div>
-    <div class="result-cards">
-      <div class="result-card"><div class="rc-label">Правильных ответов</div><div class="rc-value" id="rc-correct"></div></div>
-      <div class="result-card"><div class="rc-label">Баллов за задания</div><div class="rc-value" id="rc-task"></div></div>
-      <div class="result-card"><div class="rc-label">Базовых баллов</div><div class="rc-value">60</div></div>
-    </div>
-    <div style="font-size:13px;font-weight:500;color:var(--color-text-secondary);margin:1rem 0 0.5rem;">Разбор ответов</div>
-    <div class="review-list" id="review-list"></div>
-    <div style="display:flex;gap:10px;margin-top:1.5rem;justify-content:center;flex-wrap:wrap;">
-      <button class="nav-btn primary" onclick="restart()">Пройти ещё раз</button>
-      <button class="nav-btn" onclick="goStart()">На главную</button>
+    <div class="opts-list" id="opts"></div>
+    <div id="fb-area"></div>
+    <div id="toast-area"></div>
+  </div>
+  <div class="navrow">
+    <div class="dots" id="dots"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" id="b-prev" onclick="go(-1)">← Назад</button>
+      <button class="btn pr" id="b-next" onclick="go(1)">Вперёд →</button>
     </div>
   </div>
 </div>
 
+<div class="screen" id="s-res">
+  <div class="topbar">
+    <span style="font-size:14px;font-weight:500;color:var(--color-text-primary)">Результаты испытания</span>
+    <span class="lv-badge" id="r-lvbadge">Ур. 1</span>
+  </div>
+  <div class="res-hero afu">
+    <div class="res-big" id="r-score">0</div>
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-top:4px">баллов из 100</div>
+    <div class="gd-badge" id="r-gdbadge"></div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px" id="r-status"></div>
+  </div>
+  <div class="xp-row"><div style="font-size:20px">&#11088;</div><div><div class="xp-row-num" id="r-xpgain">+0 XP</div><div class="xp-row-lbl">заработано за сессию</div></div></div>
+  <div class="res-g">
+    <div class="res-c"><div class="res-v" id="r-corr">0/10</div><div class="res-l">правильных</div></div>
+    <div class="res-c"><div class="res-v" id="r-pts">+0</div><div class="res-l">баллов за ответы</div></div>
+    <div class="res-c"><div class="res-v" id="r-mxsk">0</div><div class="res-l">макс. серия</div></div>
+  </div>
+  <div id="r-ach-area"></div>
+  <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin:1rem 0 .5rem">Разбор ответов</div>
+  <div id="r-review"></div>
+  <div style="display:flex;gap:10px;margin-top:1.5rem;justify-content:center;flex-wrap:wrap">
+    <button class="btn pr" onclick="startExam(trainMode)">Пройти ещё раз</button>
+    <button class="btn" onclick="showDash()">На главную</button>
+  </div>
+</div>
+
+</div>
 <script>
-const QUESTIONS = [
-  {topic:"Цифровая грамотность",q:"Что из перечисленного является примером проприетарного программного обеспечения?",opts:["LibreOffice","Linux","Microsoft Windows","Firefox"],ans:2,exp:"Проприетарное ПО — закрытое коммерческое, правообладатель ограничивает использование. Windows — яркий пример. LibreOffice, Firefox и Linux — свободное ПО."},
-  {topic:"Цифровая грамотность",q:"Какой протокол используется для безопасной передачи веб-страниц?",opts:["FTP","HTTP","HTTPS","SMTP"],ans:2,exp:"HTTPS (HTTP Secure) шифрует трафик с помощью SSL/TLS. HTTP — незащищённый вариант. FTP — передача файлов, SMTP — отправка почты."},
-  {topic:"Цифровая грамотность",q:"Что такое DNS в контексте сети Интернет?",opts:["Протокол шифрования данных","Система доменных имён, переводящая имена в IP-адреса","Межсетевой экран","Тип оптического кабеля"],ans:1,exp:"DNS (Domain Name System) преобразует доменные имена (например, google.com) в IP-адреса, необходимые для маршрутизации пакетов."},
-  {topic:"Цифровая грамотность",q:"Резервное копирование данных — это:",opts:["Удаление ненужных файлов","Создание копий данных для восстановления при сбое","Сжатие файлов для экономии места","Шифрование файлов паролем"],ans:1,exp:"Резервное копирование (backup) создаёт копии данных, позволяющие восстановить информацию после отказа оборудования, вирусной атаки или случайного удаления."},
-  {topic:"Цифровая грамотность",q:"К какому типу программного обеспечения относится операционная система?",opts:["Прикладное ПО","Системное ПО","Инструментальное ПО","Развлекательное ПО"],ans:1,exp:"Операционная система относится к системному ПО — оно управляет ресурсами компьютера и обеспечивает работу прикладных программ."},
-  {topic:"Цифровая грамотность",q:"Что из перечисленного является примером геолокационного сервиса реального времени?",opts:["Microsoft Word","Яндекс.Навигатор","Adobe Photoshop","VLC Media Player"],ans:1,exp:"Яндекс.Навигатор определяет местоположение устройства в реальном времени и строит маршруты с учётом дорожной обстановки — классический геолокационный сервис."},
-  {topic:"Теоретические основы",q:"Сколько байт содержит 1 Кбайт в стандарте IEC (двоичный префикс)?",opts:["1000","1024","512","2048"],ans:1,exp:"1 кибибайт (Кбайт/KiB) = 2¹⁰ = 1024 байта. В десятичной системе (СИ) 1 кБ = 1000 байт, однако в информатике традиционно используется двоичный стандарт: 1024 байта."},
-  {topic:"Теоретические основы",q:"Чему равен информационный объём сообщения «да/нет» (один из двух равновероятных исходов)?",opts:["0 бит","1 бит","2 бита","4 бита"],ans:1,exp:"По формуле Хартли: I = log₂(N), где N = 2. I = log₂(2) = 1 бит. Один бит — минимальная единица информации, соответствующая выбору из двух равновероятных вариантов."},
-  {topic:"Теоретические основы",q:"Переведите число 1011₂ в десятичную систему счисления:",opts:["9","10","11","13"],ans:2,exp:"1011₂ = 1·2³ + 0·2² + 1·2¹ + 1·2⁰ = 8 + 0 + 2 + 1 = 11₁₀."},
-  {topic:"Теоретические основы",q:"Какое максимальное целое число можно записать в 8-битовом беззнаковом формате?",opts:["127","128","255","256"],ans:2,exp:"8 бит = 2⁸ = 256 различных значений. Беззнаковый диапазон: 0…255. Максимальное значение — 255."},
-  {topic:"Теоретические основы",q:"Чему равно число FF в шестнадцатеричной системе в десятичной?",opts:["15","240","255","256"],ans:2,exp:"FF₁₆ = 15·16¹ + 15·16⁰ = 240 + 15 = 255₁₀."},
-  {topic:"Теоретические основы",q:"Кодировка ASCII изначально использует:",opts:["6 бит на символ","7 бит на символ","8 бит на символ","16 бит на символ"],ans:1,exp:"Стандартная ASCII — семибитная кодировка (128 символов: 0…127). Расширенная ASCII использует 8 бит (256 символов), но базовый стандарт — именно 7 бит."},
-  {topic:"Теоретические основы",q:"Какой объём займёт растровое изображение 800×600 пикселей при глубине цвета 24 бита (без сжатия)?",opts:["1 440 000 бит","1 440 000 байт","5 760 000 бит","1 440 000 Кбайт"],ans:1,exp:"800 × 600 = 480 000 пикселей. 480 000 × 24 бита = 11 520 000 бит = 1 440 000 байт ≈ 1,37 МБ."},
-  {topic:"Теоретические основы",q:"Условие Фано для неравномерных кодов гарантирует:",opts:["Минимальную длину кода","Возможность однозначного декодирования без разделителей","Равновероятность символов","Помехоустойчивость при передаче"],ans:1,exp:"Условие Фано (prefix-free code): ни одно кодовое слово не является префиксом другого, что позволяет однозначно декодировать последовательность без разделителей."},
-  {topic:"Теоретические основы",q:"Скорость передачи данных по каналу связи 1 Мбит/с. За сколько секунд будет передан файл объёмом 4 Мбайта?",opts:["4","8","32","64"],ans:2,exp:"4 МБ = 4 × 8 = 32 Мбит. Время = 32 Мбит / 1 Мбит/с = 32 секунды."},
-  {topic:"Теоретические основы",q:"Переведите число 25₁₀ в двоичную систему счисления:",opts:["11000₂","11001₂","10101₂","10111₂"],ans:1,exp:"25 / 2 = 12 ост. 1; 12/2=6 ост. 0; 6/2=3 ост. 0; 3/2=1 ост. 1; 1/2=0 ост. 1. Читаем снизу вверх: 11001₂."},
-  {topic:"Теоретические основы",q:"Стандарт Unicode предназначен для:",opts:["Сжатия текстовых файлов","Единой кодировки символов всех языков мира","Шифрования текстовых документов","Форматирования документов"],ans:1,exp:"Unicode — международный стандарт, присваивающий уникальный код каждому символу любого языка мира. UTF-8 — наиболее распространённая переменно-байтовая реализация Unicode."},
-  {topic:"Алгоритмы",q:"Что из перечисленного является циклом с постусловием в языке Pascal?",opts:["for i := 1 to 10 do","while условие do","repeat ... until условие","if условие then"],ans:2,exp:"Цикл repeat…until — цикл с постусловием: тело выполняется хотя бы один раз, затем проверяется условие выхода. В Python аналога нет (используют while True + break)."},
-  {topic:"Алгоритмы",q:"Алгоритм «метод пузырька» выполняет сортировку:",opts:["Делением пополам","Последовательными сравнениями и перестановками соседних элементов","Рекурсивным разбиением","Поиском минимума и его перестановкой в начало"],ans:1,exp:"Метод пузырька: на каждом проходе сравниваются соседние элементы и меняются местами, если стоят не по порядку. Более тяжёлые элементы «всплывают» вверх."},
-  {topic:"Алгоритмы",q:"Что напечатает следующий фрагмент?\ns = 0\nfor i in range(1, 5):\n    s = s + i\nprint(s)",opts:["10","15","4","5"],ans:0,exp:"range(1,5) генерирует 1,2,3,4. Сумма: 1+2+3+4=10."},
-  {topic:"Алгоритмы",q:"Какой тип данных используется для хранения значений True и False?",opts:["int","float","bool","str"],ans:2,exp:"Тип bool (логический / булевский) хранит одно из двух значений: True или False. В Python bool является подклассом int (True=1, False=0)."},
-  {topic:"Алгоритмы",q:"Алгоритм нахождения НОД двух чисел методом перебора для чисел 12 и 18 даст результат:",opts:["2","4","6","9"],ans:2,exp:"Делители 12: 1,2,3,4,6,12. Делители 18: 1,2,3,6,9,18. Общие: 1,2,3,6. Наибольший — 6."},
-  {topic:"Алгоритмы",q:"Что такое трассировочная таблица алгоритма?",opts:["Схема алгоритма в виде блок-схемы","Таблица, в которой фиксируются значения переменных на каждом шаге выполнения","Таблица истинности логических выражений","Список всех переменных программы"],ans:1,exp:"Таблица трассировки позволяет проследить изменение значений всех переменных на каждом шаге алгоритма, что помогает выявлять ошибки."},
-  {topic:"Алгоритмы",q:"Функция len() в Python применительно к строке возвращает:",opts:["Количество слов","Количество символов (включая пробелы)","Количество строк","Размер в байтах"],ans:1,exp:"len('hello') = 5 — количество символов в строке, включая пробелы и знаки препинания."},
-  {topic:"Алгоритмы",q:"Линейный поиск элемента в массиве из N элементов в худшем случае требует:",opts:["1 сравнение","log₂N сравнений","N сравнений","N² сравнений"],ans:2,exp:"При линейном поиске в худшем случае (элемент последний или отсутствует) просматриваются все N элементов."},
-  {topic:"Алгоритмы",q:"Подпрограмма (функция) используется для:",opts:["Ускорения компиляции","Повторного использования фрагмента кода без его дублирования","Хранения данных в памяти","Форматирования вывода"],ans:1,exp:"Подпрограммы (функции/процедуры) выделяют повторяющийся код в именованный блок, который можно вызывать многократно — это упрощает программу и устраняет дублирование."},
-  {topic:"Базы данных",q:"Что такое первичный ключ таблицы в реляционной базе данных?",opts:["Первое поле любой таблицы","Поле (или набор полей), однозначно идентифицирующее каждую запись","Поле с наибольшим количеством данных","Числовой идентификатор базы данных"],ans:1,exp:"Первичный ключ (Primary Key) — атрибут или набор атрибутов, значение которого уникально для каждой строки таблицы и не может быть NULL."},
-  {topic:"Базы данных",q:"Запрос SELECT * FROM Students WHERE Grade > 4 выбирает:",opts:["Все поля всех студентов","Все поля студентов, у которых оценка больше 4","Только поле Grade","Всех студентов с оценкой равной 4"],ans:1,exp:"SELECT * — все поля. FROM Students — из таблицы Students. WHERE Grade > 4 — условие: оценка строго больше 4."},
-  {topic:"Базы данных",q:"Связь «один ко многим» между таблицами означает:",opts:["Одна запись в обеих таблицах","Одна запись первой таблицы связана с несколькими записями второй","Несколько записей в первой таблице связаны с несколькими во второй","Записи не связаны"],ans:1,exp:"«Один ко многим» (1:N) — наиболее распространённый тип связи: например, один клиент может иметь много заказов. Реализуется через внешний ключ в таблице «многих»."},
-  {topic:"Информационные технологии",q:"Растровая графика отличается от векторной тем, что:",opts:["Хранит изображение в виде математических уравнений кривых","Состоит из пикселей и теряет качество при масштабировании","Занимает всегда меньше места на диске","Не поддерживает цветные изображения"],ans:1,exp:"Растровое изображение — матрица пикселей. При увеличении появляется «пикселизация». Векторная графика хранит геометрические примитивы и масштабируется без потерь."},
-  {topic:"Информационные технологии",q:"Частота дискретизации звука 44 100 Гц означает:",opts:["Звук воспроизводится 44100 раз в секунду","44100 замеров амплитуды звука производится за одну секунду","Максимальная частота воспроизводимого звука — 44100 Гц","Размер одного аудиофайла — 44100 байт"],ans:1,exp:"Частота дискретизации — количество измерений (сэмплов) аналогового сигнала в секунду. 44 100 Гц (стандарт Audio CD) по теореме Найквиста позволяет корректно воспроизвести частоты до 22 050 Гц."},
-  {topic:"Информационные технологии",q:"Что из перечисленного НЕ является реляционной СУБД?",opts:["MySQL","PostgreSQL","MongoDB","Oracle"],ans:2,exp:"MongoDB — документо-ориентированная NoSQL СУБД. MySQL, PostgreSQL и Oracle — реляционные СУБД, работающие с таблицами и SQL."},
-  {topic:"Информационные технологии",q:"Вычислите результат выражения 5 XOR 3 (побитовое исключающее ИЛИ):",opts:["1","2","6","8"],ans:2,exp:"5 = 101₂, 3 = 011₂. XOR: 101 XOR 011 = 110₂ = 6₁₀. XOR даёт 1, если биты различны."},
-  {topic:"Теоретические основы",q:"Что из перечисленного является логической операцией?",opts:["Сложение двух чисел","Конъюнкция (И)","Деление нацело","Возведение в степень"],ans:1,exp:"Конъюнкция (логическое И, AND) — операция над логическими (булевскими) значениями. Результат истинен, только если оба операнда истинны."},
-  {topic:"Алгоритмы",q:"Какое значение вернёт функция после выполнения?\ndef f(n):\n    if n <= 1: return n\n    return f(n-1) + f(n-2)\nf(5)",opts:["3","5","8","13"],ans:1,exp:"f(5) — числа Фибоначчи. f(0)=0, f(1)=1, f(2)=1, f(3)=2, f(4)=3, f(5)=5."},
-  {topic:"Цифровая грамотность",q:"Какой адрес является примером IPv4?",opts:["192.168.1.1","2001:0db8:85a3::8a2e:0370:7334","68:A8:6D:1B:8C:5F","https://example.com"],ans:0,exp:"IPv4-адрес состоит из четырёх десятичных чисел 0–255, разделённых точками. Второй вариант — IPv6, третий — MAC-адрес, четвёртый — URL."},
-  {topic:"Базы данных",q:"Фильтрация записей в базе данных позволяет:",opts:["Изменить структуру таблицы","Отобразить только записи, удовлетворяющие заданному условию","Удалить дублирующиеся записи","Объединить несколько таблиц в одну"],ans:1,exp:"Фильтрация — отбор строк по условию (аналог WHERE в SQL). Записи, не удовлетворяющие условию, не отображаются, но остаются в таблице."},
-  {topic:"Информационные технологии",q:"Что такое облачные технологии?",opts:["Программы, хранящиеся на жёстком диске","Предоставление вычислительных ресурсов и хранилища через Интернет","Специальные процессоры для обработки больших данных","Технология беспроводной передачи данных"],ans:1,exp:"Облачные технологии (cloud computing) — предоставление ИТ-ресурсов (вычислений, хранилища, ПО) через Интернет по требованию без необходимости локальной установки."},
-  {topic:"Теоретические основы",q:"Число 27₁₀ в восьмеричной системе счисления равно:",opts:["27₈","33₈","37₈","31₈"],ans:1,exp:"27 / 8 = 3 ост. 3. Итого: 33₈. Проверка: 3·8 + 3 = 27₁₀ ✓"},
-  {topic:"Алгоритмы",q:"Сортировка выбором работает следующим образом:",opts:["На каждом шаге находит минимум в неотсортированной части и ставит его на нужное место","Сравнивает и меняет местами соседние элементы","Делит массив пополам рекурсивно","Вставляет каждый элемент на нужную позицию в уже отсортированной части"],ans:0,exp:"Сортировка выбором: ищет минимальный элемент в неотсортированной части массива и меняет его с первым неотсортированным. Повторяет N-1 раз."},
+const QS=[
+  {t:"Цифровая грамотность",q:"Что из перечисленного является проприетарным программным обеспечением?",o:["LibreOffice","Linux","Microsoft Windows","Mozilla Firefox"],a:2,e:"Проприетарное ПО — закрытое, коммерческое, с ограничениями на использование. Windows — типичный пример. LibreOffice, Firefox и Linux — свободное ПО."},
+  {t:"Цифровая грамотность",q:"Какой протокол обеспечивает безопасную передачу веб-страниц?",o:["FTP","HTTP","HTTPS","SMTP"],a:2,e:"HTTPS шифрует трафик с помощью TLS. HTTP — незащищённый вариант. FTP — передача файлов, SMTP — отправка почты."},
+  {t:"Цифровая грамотность",q:"Что такое DNS в сети Интернет?",o:["Протокол шифрования","Система доменных имён, переводящая имена в IP-адреса","Межсетевой экран","Тип оптического кабеля"],a:1,e:"DNS (Domain Name System) преобразует доменные имена (google.com) в IP-адреса для маршрутизации пакетов."},
+  {t:"Цифровая грамотность",q:"Резервное копирование — это:",o:["Удаление ненужных файлов","Создание копий данных для восстановления при сбое","Сжатие файлов","Шифрование паролем"],a:1,e:"Backup создаёт копии данных, позволяющие восстановить информацию после отказа оборудования, вируса или случайного удаления."},
+  {t:"Цифровая грамотность",q:"К какому типу ПО относится операционная система?",o:["Прикладное","Системное","Инструментальное","Развлекательное"],a:1,e:"ОС — системное ПО: управляет ресурсами компьютера и обеспечивает работу прикладных программ."},
+  {t:"Цифровая грамотность",q:"Какой адрес является корректным IPv4?",o:["192.168.1.1","2001:0db8::7334","68:A8:6D:1B:8C:5F","https://example.com"],a:0,e:"IPv4-адрес — четыре числа 0–255, разделённые точками. Второй — IPv6, третий — MAC-адрес, четвёртый — URL."},
+  {t:"Теоретические основы",q:"Сколько байт содержит 1 Кбайт (двоичный стандарт)?",o:["1000","1024","512","2048"],a:1,e:"1 Кбайт (KiB) = 2¹⁰ = 1024 байта по двоичному стандарту IEC."},
+  {t:"Теоретические основы",q:"Чему равен информационный объём сообщения «да/нет» (два равновероятных исхода)?",o:["0 бит","1 бит","2 бита","4 бита"],a:1,e:"По формуле Хартли: I = log₂(2) = 1 бит. Один бит — минимальная единица информации при выборе из двух вариантов."},
+  {t:"Теоретические основы",q:"Переведите 1011₂ в десятичную систему:",o:["9","10","11","13"],a:2,e:"1011₂ = 1·8 + 0·4 + 1·2 + 1·1 = 8+0+2+1 = 11₁₀."},
+  {t:"Теоретические основы",q:"Максимальное целое в 8-битовом беззнаковом формате:",o:["127","128","255","256"],a:2,e:"2⁸ = 256 значений. Диапазон беззнакового 8-бит: 0…255."},
+  {t:"Теоретические основы",q:"Число FF₁₆ в десятичной системе:",o:["15","240","255","256"],a:2,e:"FF₁₆ = 15·16 + 15·1 = 240+15 = 255₁₀."},
+  {t:"Теоретические основы",q:"Стандартная таблица ASCII использует:",o:["6 бит","7 бит","8 бит","16 бит"],a:1,e:"Базовая ASCII — 7 бит (128 символов: 0…127). Расширенная ASCII использует 8 бит."},
+  {t:"Теоретические основы",q:"Объём растрового изображения 800×600 пикс., глубина цвета 24 бита (без сжатия):",o:["480 000 бит","1 440 000 бит","1 440 000 байт","480 000 байт"],a:2,e:"800×600 = 480 000 пикс. × 24 бит = 11 520 000 бит = 1 440 000 байт ≈ 1,37 МБ."},
+  {t:"Теоретические основы",q:"Условие Фано для неравномерных кодов гарантирует:",o:["Минимальную длину кода","Однозначное декодирование без разделителей","Равновероятность символов","Помехоустойчивость"],a:1,e:"Условие Фано (prefix-free): ни одно кодовое слово не является префиксом другого — декодирование однозначно."},
+  {t:"Теоретические основы",q:"Скорость канала 1 Мбит/с. Время передачи файла 4 Мбайта:",o:["4 с","8 с","32 с","64 с"],a:2,e:"4 МБ = 32 Мбит. Время = 32 / 1 = 32 секунды."},
+  {t:"Теоретические основы",q:"Переведите 25₁₀ в двоичную систему:",o:["11000₂","11001₂","10101₂","10111₂"],a:1,e:"25→12 ост.1 → 6 ост.0 → 3 ост.0 → 1 ост.1 → 0 ост.1. Читаем снизу: 11001₂."},
+  {t:"Теоретические основы",q:"Unicode предназначен для:",o:["Сжатия текстовых файлов","Единой кодировки символов всех языков мира","Шифрования документов","Форматирования текста"],a:1,e:"Unicode присваивает уникальный код каждому символу любого языка. UTF-8 — самая распространённая реализация."},
+  {t:"Теоретические основы",q:"Число 27₁₀ в восьмеричной системе:",o:["27₈","33₈","37₈","31₈"],a:1,e:"27/8 = 3 ост.3. Итог: 33₈. Проверка: 3×8+3 = 27 ✓"},
+  {t:"Теоретические основы",q:"Результат операции 5 XOR 3 (побитовое исключающее ИЛИ):",o:["1","2","6","8"],a:2,e:"5=101₂, 3=011₂. XOR: 110₂ = 6₁₀. XOR даёт 1, если биты различны."},
+  {t:"Алгоритмы",q:"Что из перечисленного — цикл с постусловием в Pascal?",o:["for i:=1 to 10 do","while условие do","repeat…until условие","if условие then"],a:2,e:"repeat…until — цикл с постусловием: тело выполняется хотя бы один раз, потом проверяется условие выхода."},
+  {t:"Алгоритмы",q:"Метод пузырька — это сортировка через:",o:["Деление пополам","Последовательные сравнения и перестановки соседних элементов","Рекурсивное разбиение","Поиск минимума"],a:1,e:"Пузырьк: на каждом проходе соседние элементы сравниваются и меняются местами, если не по порядку."},
+  {t:"Алгоритмы",q:"Что напечатает фрагмент?\ns=0\nfor i in range(1,5): s+=i\nprint(s)",o:["10","15","4","5"],a:0,e:"range(1,5) = 1,2,3,4. Сумма: 1+2+3+4 = 10."},
+  {t:"Алгоритмы",q:"Тип данных для хранения True/False:",o:["int","float","bool","str"],a:2,e:"Тип bool (булевский) хранит True или False. В Python bool — подкласс int (True=1, False=0)."},
+  {t:"Алгоритмы",q:"НОД чисел 12 и 18 методом перебора:",o:["2","4","6","9"],a:2,e:"Делители 12: 1,2,3,4,6,12. Делители 18: 1,2,3,6,9,18. Общие: 1,2,3,6. Наибольший — 6."},
+  {t:"Алгоритмы",q:"Таблица трассировки алгоритма — это:",o:["Блок-схема","Таблица значений переменных на каждом шаге","Таблица истинности","Список всех переменных"],a:1,e:"Таблица трассировки фиксирует значения переменных на каждом шаге — помогает найти ошибки в алгоритме."},
+  {t:"Алгоритмы",q:"len('Привет') в Python вернёт:",o:["6","5","12","3"],a:0,e:"len() возвращает количество символов. 'Привет' содержит 6 символов."},
+  {t:"Алгоритмы",q:"Линейный поиск в массиве из N элементов (худший случай):",o:["1 сравнение","log₂N сравнений","N сравнений","N² сравнений"],a:2,e:"При линейном поиске в худшем случае просматриваются все N элементов."},
+  {t:"Алгоритмы",q:"Что вернёт f(5), если f(n) = f(n-1)+f(n-2), f(0)=0, f(1)=1?",o:["3","5","8","13"],a:1,e:"f(2)=1, f(3)=2, f(4)=3, f(5)=5. Числа Фибоначчи."},
+  {t:"Алгоритмы",q:"Сортировка выбором — это:",o:["Поиск минимума в неотсортированной части и перестановка его вперёд","Сравнение соседних элементов","Деление массива пополам","Вставка в отсортированную часть"],a:0,e:"Выбором: ищем минимум неотсортированной части, меняем с первым неотсортированным. Повторяем N-1 раз."},
+  {t:"Алгоритмы",q:"Подпрограмма (функция) используется для:",o:["Ускорения компиляции","Повторного использования кода без дублирования","Хранения данных","Форматирования вывода"],a:1,e:"Функции выделяют повторяющийся код в именованный блок — устраняют дублирование и упрощают программу."},
+  {t:"Базы данных",q:"Первичный ключ в реляционной базе данных — это:",o:["Первое поле таблицы","Поле, однозначно идентифицирующее каждую запись","Поле с наибольшим объёмом данных","Числовой идентификатор БД"],a:1,e:"Primary Key — атрибут или набор атрибутов, уникальный для каждой строки и не равный NULL."},
+  {t:"Базы данных",q:"Запрос SELECT * FROM Students WHERE Grade > 4 выбирает:",o:["Все поля всех студентов","Все поля студентов с оценкой больше 4","Только поле Grade","Студентов с оценкой = 4"],a:1,e:"WHERE Grade > 4 — условие строгого неравенства. Выбираются все столбцы (*) строк, где оценка > 4."},
+  {t:"Базы данных",q:"Связь «один ко многим» означает:",o:["По одной записи в каждой таблице","Одна запись первой связана с несколькими второй","Несколько с несколькими","Записи не связаны"],a:1,e:"1:N — самый распространённый тип. Например, один клиент — много заказов. Реализуется внешним ключом."},
+  {t:"Базы данных",q:"Фильтрация записей в базе данных позволяет:",o:["Изменить структуру таблицы","Отобразить только записи, удовлетворяющие условию","Удалить дублирующиеся записи","Объединить таблицы"],a:1,e:"Фильтр отображает лишь строки, подходящие под условие (аналог WHERE). Остальные не удаляются, а скрываются."},
+  {t:"Информационные технологии",q:"Растровая графика отличается от векторной тем, что:",o:["Хранит кривые в виде уравнений","Состоит из пикселей и теряет качество при масштабировании","Всегда занимает меньше места","Не поддерживает цвет"],a:1,e:"Растр — матрица пикселей. При увеличении — «пикселизация». Вектор масштабируется без потерь."},
+  {t:"Информационные технологии",q:"Частота дискретизации 44 100 Гц означает:",o:["Звук воспроизводится 44100 раз/с","44100 замеров амплитуды звука за одну секунду","Максимальная частота звука — 44100 Гц","Размер файла — 44100 байт"],a:1,e:"Частота дискретизации — количество сэмплов в секунду. 44100 Гц (CD Audio) обеспечивает передачу частот до 22050 Гц."},
+  {t:"Информационные технологии",q:"Что из перечисленного НЕ является реляционной СУБД?",o:["MySQL","PostgreSQL","MongoDB","Oracle"],a:2,e:"MongoDB — документо-ориентированная NoSQL СУБД. MySQL, PostgreSQL, Oracle — реляционные СУБД с SQL."},
+  {t:"Информационные технологии",q:"Облачные технологии — это:",o:["Программы на жёстком диске","Предоставление ИТ-ресурсов через Интернет по требованию","Процессоры для больших данных","Беспроводная передача данных"],a:1,e:"Cloud computing — ИТ-ресурсы (вычисления, хранилище, ПО) через Интернет без локальной установки."},
+  {t:"Теоретические основы",q:"Что из перечисленного является логической операцией?",o:["Сложение двух чисел","Конъюнкция (И)","Деление нацело","Возведение в степень"],a:1,e:"Конъюнкция (AND) — булева операция. Результат истинен только если оба операнда истинны."},
+  {t:"Цифровая грамотность",q:"Геолокационный сервис реального времени — пример:",o:["Microsoft Word","Яндекс.Навигатор","Adobe Photoshop","VLC Player"],a:1,e:"Яндекс.Навигатор определяет местоположение в реальном времени и строит маршруты — классический геолокационный сервис."}
 ];
 
-let selected = [], userAnswers = [], current = 0, timer, seconds = 5400, trainMode = false, finished = false;
+const LEVELS=[
+  {min:0,max:99,name:"Новичок"},{min:100,max:249,name:"Ученик"},{min:250,max:449,name:"Студент"},
+  {min:450,max:699,name:"Знаток"},{min:700,max:999,name:"Эксперт"},{min:1000,max:1399,name:"Мастер"},
+  {min:1400,max:99999,name:"Академик"}
+];
+const ACHS=[
+  {id:"first",name:"Первый шаг",desc:"Завершить первую сессию",ico:"&#127891;"},
+  {id:"perfect",name:"Идеальный",desc:"10 из 10 правильно",ico:"&#128081;"},
+  {id:"excellent",name:"Отличник",desc:"Оценка 5 (90+ баллов)",ico:"&#11088;"},
+  {id:"streak5",name:"В потоке",desc:"Серия 5 правильных подряд",ico:"&#128293;"},
+  {id:"speed",name:"Молниеносный",desc:"Завершить за 10 минут",ico:"&#9889;"},
+  {id:"three",name:"Упорный",desc:"Пройти 3 сессии",ico:"&#127942;"},
+  {id:"comeback",name:"Прогресс",desc:"Улучшить предыдущий результат",ico:"&#128200;"}
+];
 
-function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+let prof={xp:0,sessions:0,bestScore:0,totalCorrect:0,streak:0,maxStreak:0,achievements:[],history:[]};
+let sel=[],ans=[],cur=0,timer,secs=5400,trainMode=false,done=false;
+let curStreak=0,sessionMaxStreak=0,sessionXP=0,newAchs=[];
 
-function startExam(train) {
-  trainMode = train;
-  document.getElementById('start-screen').style.display = 'none';
-  document.getElementById('exam-screen').style.display = 'block';
-  document.getElementById('mode-label').textContent = train ? 'Режим обучения (с подсказками)' : 'Режим экзамена';
-  selected = shuffle(QUESTIONS).slice(0, 10);
-  userAnswers = new Array(10).fill(-1);
-  current = 0; finished = false; seconds = 5400;
-  buildDots();
-  renderQuestion();
-  startTimer();
+async function loadProfile(){
+  try{
+    const r=await window.storage.get('inf-profile');
+    if(r&&r.value){prof=JSON.parse(r.value);}
+  }catch(e){}
+  renderDash();
+}
+async function saveProfile(){
+  try{await window.storage.set('inf-profile',JSON.stringify(prof));}catch(e){}
 }
 
-function startTimer() {
+function getLevel(xp){
+  for(let i=LEVELS.length-1;i>=0;i--){if(xp>=LEVELS[i].min)return{num:i+1,...LEVELS[i]};}
+  return{num:1,...LEVELS[0]};
+}
+
+function renderDash(){
+  const lv=getLevel(prof.xp);
+  const nextMin=LEVELS[lv.num]?LEVELS[lv.num].min:LEVELS[LEVELS.length-1].max;
+  const pct=Math.round(((prof.xp-lv.min)/(nextMin-lv.min))*100);
+  document.getElementById('d-lvbadge').textContent=`Ур. ${lv.num} · ${lv.name}`;
+  document.getElementById('d-rlv').textContent=lv.num;
+  document.getElementById('d-rank').textContent=lv.name;
+  document.getElementById('d-xpcurr').textContent=`${prof.xp} XP`;
+  document.getElementById('d-xpnxt').textContent=nextMin;
+  document.getElementById('d-xplbl').textContent=`${prof.xp} / ${nextMin} XP до следующего уровня`;
+  document.getElementById('d-xpbar').style.width=Math.min(pct,100)+'%';
+  document.getElementById('d-streak').textContent=prof.maxStreak;
+  document.getElementById('st-s').textContent=prof.sessions;
+  document.getElementById('st-b').textContent=prof.bestScore||'—';
+  document.getElementById('st-c').textContent=prof.totalCorrect;
+  const arc=document.getElementById('ring-arc');
+  arc.style.strokeDashoffset=213.6*(1-Math.min(pct,100)/100);
+
+  const ag=document.getElementById('ach-grid');
+  ag.innerHTML='';
+  ACHS.forEach(a=>{
+    const on=(prof.achievements||[]).includes(a.id);
+    const d=document.createElement('div');
+    d.className='ach-c'+(on?' on':'');
+    d.innerHTML=`<div class="ach-ico">${a.ico}</div><div><div class="ach-nm">${a.name}</div><div class="ach-ds">${a.desc}</div></div>`;
+    ag.appendChild(d);
+  });
+
+  const ha=document.getElementById('hist-area');
+  if(!prof.history||!prof.history.length){ha.innerHTML='<p style="font-size:13px;color:var(--color-text-secondary)">Ещё нет сессий — начни первую!</p>';return;}
+  ha.innerHTML='';
+  prof.history.slice().reverse().forEach(h=>{
+    const gc=h.score>=90?'g5':h.score>=75?'g4':h.score>=60?'g3':'g2';
+    const gt=h.score>=90?'5 — Отлично':h.score>=75?'4 — Хорошо':h.score>=60?'3 — Удовл.':'2 — Неудовл.';
+    const r=document.createElement('div');
+    r.className='hist-row';
+    r.innerHTML=`<div><span class="hist-sc">${h.score}</span><span style="font-size:12px;color:var(--color-text-secondary);margin-left:6px">баллов</span></div><div style="display:flex;align-items:center;gap:8px"><span class="hist-grade ${gc}">${gt}</span><span class="hist-mt">${h.corr}/10 верных</span></div>`;
+    ha.appendChild(r);
+  });
+}
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function showDash(){renderDash();show('s-dash');}
+
+function shuffle(a){return[...a].sort(()=>Math.random()-.5);}
+
+function startExam(train){
+  trainMode=train;
+  sel=shuffle(QS).slice(0,10);
+  ans=new Array(10).fill(-1);
+  cur=0;done=false;secs=5400;curStreak=0;sessionMaxStreak=0;sessionXP=0;newAchs=[];
   clearInterval(timer);
-  timer = setInterval(() => {
-    if (finished) { clearInterval(timer); return; }
-    seconds--;
-    updateTimerDisplay();
-    if (seconds <= 0) { clearInterval(timer); finishExam(); }
-  }, 1000);
+  timer=setInterval(()=>{if(done){clearInterval(timer);return;}secs--;updateTimer();if(secs<=0){clearInterval(timer);finish();}},1000);
+  show('s-exam');
+  renderQ();
 }
 
-function updateTimerDisplay() {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  const el = document.getElementById('timer');
-  el.textContent = `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  el.className = 'timer-value' + (seconds < 300 ? ' danger' : seconds < 900 ? ' warn' : '');
+function updateTimer(){
+  const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
+  const el=document.getElementById('e-timer');
+  el.textContent=`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.className='timer-chip'+(secs<300?' crit':secs<900?' warn':'');
 }
 
-function buildDots() {
-  const c = document.getElementById('score-dots');
-  c.innerHTML = '';
-  for (let i = 0; i < 10; i++) {
-    const d = document.createElement('div');
-    d.className = 'score-dot' + (i === current ? ' current' : (userAnswers[i] >= 0 ? ' answered' : ''));
-    d.onclick = (function(idx){ return () => { current = idx; renderQuestion(); }; })(i);
-    d.style.cursor = 'pointer';
-    c.appendChild(d);
-  }
+function renderQ(){
+  const q=sel[cur];
+  document.getElementById('e-prog').style.width=((cur+1)*10)+'%';
+  document.getElementById('q-nr').textContent=`Вопрос ${cur+1} из 10`;
+  document.getElementById('q-tp').textContent=q.t;
+  document.getElementById('q-txt').textContent=q.q;
+  const skc=document.getElementById('e-sk');
+  if(curStreak>=2){skc.style.display='flex';document.getElementById('e-skn').textContent=curStreak;}
+  else{skc.style.display='none';}
+  document.getElementById('b-prev').disabled=cur===0;
+  document.getElementById('b-next').textContent=cur===9?'Завершить':'Вперёд →';
+  renderOpts();
+  renderDots();
+  document.getElementById('fb-area').innerHTML='';
+  document.getElementById('toast-area').innerHTML='';
+  if(trainMode&&ans[cur]>=0)showFeedback(ans[cur]===q.a,q);
 }
 
-function renderQuestion() {
-  const q = selected[current];
-  document.getElementById('q-counter').textContent = `Вопрос ${current + 1} из 10`;
-  document.getElementById('q-topic').textContent = q.topic;
-  document.getElementById('question-text').textContent = q.q;
-  document.getElementById('progress-bar').style.width = `${(current + 1) * 10}%`;
-  const ol = document.getElementById('options-list');
-  ol.innerHTML = '';
-  const letters = ['А', 'Б', 'В', 'Г'];
-  q.opts.forEach((opt, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    const answered = userAnswers[current] >= 0;
-    if (answered) {
-      if (i === q.ans) btn.classList.add('correct');
-      else if (i === userAnswers[current]) btn.classList.add('wrong');
-      btn.disabled = true;
-    } else if (userAnswers[current] === i) {
-      btn.classList.add('selected');
+function renderOpts(){
+  const q=sel[cur];const L=['А','Б','В','Г'];
+  const ol=document.getElementById('opts');ol.innerHTML='';
+  q.o.forEach((opt,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    const answered=ans[cur]>=0;
+    if(answered){
+      if(i===q.a)b.classList.add('ok');
+      else if(i===ans[cur])b.classList.add('ng');
+      b.disabled=true;
     }
-    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
-    btn.onclick = () => selectAnswer(i);
-    ol.appendChild(btn);
+    b.innerHTML=`<span class="opt-l">${L[i]}</span><span>${opt}</span>`;
+    b.onclick=()=>pick(i);
+    ol.appendChild(b);
   });
-  document.getElementById('btn-prev').disabled = current === 0;
-  document.getElementById('btn-next').textContent = current === 9 ? 'Завершить' : 'Вперёд →';
-  renderExplain();
-  buildDots();
 }
 
-function renderExplain() {
-  const area = document.getElementById('explain-area');
-  const q = selected[current];
-  if (trainMode && userAnswers[current] >= 0) {
-    area.innerHTML = `<div class="explain-box">${q.exp}</div>`;
-  } else {
-    area.innerHTML = '';
+function renderDots(){
+  const dc=document.getElementById('dots');dc.innerHTML='';
+  for(let i=0;i<10;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' c-cur':ans[i]>=0?(ans[i]===sel[i].a?' c-ok':' c-ng'):'');
+    d.onclick=(ii=>()=>{cur=ii;renderQ();})(i);
+    dc.appendChild(d);
   }
 }
 
-function selectAnswer(i) {
-  if (userAnswers[current] >= 0) return;
-  userAnswers[current] = i;
-  renderQuestion();
+function showFeedback(ok,q){
+  const a=document.getElementById('fb-area');
+  a.innerHTML=`<div class="fb ${ok?'ok-fb':'ng-fb'}"><div class="fb-head">${ok?'Верно!':'Неверно'}</div>${q.e}</div>`;
 }
 
-function navigate(dir) {
-  if (dir === 1 && current === 9) { finishExam(); return; }
-  current = Math.max(0, Math.min(9, current + dir));
-  renderQuestion();
+function floatXP(pts){
+  const wrap=document.getElementById('q-card');
+  const sp=document.createElement('span');
+  sp.className='xp-pop';sp.textContent=`+${pts} XP`;
+  sp.style.top='10px';sp.style.right='14px';
+  wrap.style.position='relative';
+  wrap.appendChild(sp);
+  setTimeout(()=>sp.remove(),1200);
 }
 
-function finishExam() {
-  finished = true; clearInterval(timer);
-  document.getElementById('exam-screen').style.display = 'none';
-  const rs = document.getElementById('result-screen');
-  rs.style.display = 'block';
-  let correct = 0;
-  selected.forEach((q, i) => { if (userAnswers[i] === q.ans) correct++; });
-  const taskPoints = correct * 4;
-  const total = 60 + taskPoints;
-  document.getElementById('res-score').textContent = total;
-  const grades = [{min:90,g:'5 — Отлично'},{min:75,g:'4 — Хорошо'},{min:60,g:'3 — Удовлетворительно'},{min:0,g:'2 — Неудовлетворительно'}];
-  const grade = grades.find(x => total >= x.min);
-  document.getElementById('res-grade').textContent = grade.g;
-  document.getElementById('res-grade').style.color = total >= 75 ? '#3B6D11' : total >= 60 ? '#BA7517' : '#A32D2D';
-  document.getElementById('res-status').textContent = total >= 44 ? 'Вступительное испытание успешно пройдено (минимум 44 балла)' : 'Минимальный порог не преодолён (нужно не менее 44 баллов)';
-  document.getElementById('rc-correct').textContent = `${correct} / 10`;
-  document.getElementById('rc-task').textContent = `${taskPoints} / 40`;
-  const rl = document.getElementById('review-list');
-  rl.innerHTML = '';
-  const letters = ['А','Б','В','Г'];
-  selected.forEach((q, i) => {
-    const ok = userAnswers[i] === q.ans;
-    const div = document.createElement('div');
-    div.className = `review-item ${ok ? 'ok' : 'fail'}`;
-    div.innerHTML = `<div class="review-q">${i+1}. ${q.q}</div><div class="review-answers"><span class="${ok ? 'review-correct' : 'review-wrong'}">Ваш ответ: ${userAnswers[i] >= 0 ? letters[userAnswers[i]] + ') ' + q.opts[userAnswers[i]] : 'не отвечено'}</span>${!ok ? `<br><span class="review-correct">Правильно: ${letters[q.ans]}) ${q.opts[q.ans]}</span>` : ''}<br><span style="color:var(--color-text-secondary);font-size:11px;">${q.exp}</span></div>`;
-    rl.appendChild(div);
+function showToast(ico,title,sub){
+  const a=document.getElementById('toast-area');
+  const d=document.createElement('div');d.className='toast';
+  d.innerHTML=`<div class="toast-ico">${ico}</div><div><div class="toast-t">${title}</div><div class="toast-s">${sub}</div></div>`;
+  a.appendChild(d);setTimeout(()=>d.remove(),3000);
+}
+
+function unlockAch(id){
+  if((prof.achievements||[]).includes(id))return false;
+  if(!prof.achievements)prof.achievements=[];
+  prof.achievements.push(id);newAchs.push(id);return true;
+}
+
+function pick(i){
+  if(ans[cur]>=0)return;
+  ans[cur]=i;
+  const q=sel[cur];const ok=i===q.a;
+  if(ok){
+    curStreak++;if(curStreak>sessionMaxStreak)sessionMaxStreak=curStreak;
+    let pts=10;
+    if(curStreak===3){pts+=5;showToast('&#128293;','Серия 3!','Бонус +5 XP');}
+    if(curStreak===5){pts+=10;showToast('&#128293;','Серия 5!','Бонус +10 XP');unlockAch('streak5')&&showToast(ACHS.find(a=>a.id==='streak5').ico,'Достижение: В потоке!','Серия 5 правильных');}
+    if(curStreak===7)showToast('&#9889;','Серия 7!','Невероятно!');
+    sessionXP+=pts;floatXP(pts);
+  }else{
+    curStreak=0;
+  }
+  renderOpts();renderDots();
+  if(trainMode)showFeedback(ok,q);
+  document.getElementById('e-sk').style.display=curStreak>=2?'flex':'none';
+  if(curStreak>=2)document.getElementById('e-skn').textContent=curStreak;
+}
+
+function go(d){
+  if(d===1&&cur===9){finish();return;}
+  cur=Math.max(0,Math.min(9,cur+d));renderQ();
+}
+
+function finish(){
+  done=true;clearInterval(timer);
+  const L=['А','Б','В','Г'];
+  let corr=0;
+  sel.forEach((q,i)=>{if(ans[i]===q.a)corr++;});
+  const taskPts=corr*4;const total=60+taskPts;
+  const timeTaken=5400-secs;
+
+  if(corr===10){sessionXP+=30;unlockAch('perfect');}
+  if(total>=90){sessionXP+=20;unlockAch('excellent');}
+  else if(total>=75){sessionXP+=10;}
+  if(timeTaken<600)unlockAch('speed');
+  if(!prof.sessions)unlockAch('first');
+  prof.sessions=(prof.sessions||0)+1;
+  if(prof.sessions>=3)unlockAch('three');
+  if(prof.bestScore&&total>prof.bestScore)unlockAch('comeback');
+  if(!prof.bestScore||total>prof.bestScore)prof.bestScore=total;
+  prof.xp=(prof.xp||0)+sessionXP;
+  prof.totalCorrect=(prof.totalCorrect||0)+corr;
+  prof.maxStreak=Math.max(prof.maxStreak||0,sessionMaxStreak);
+  if(!prof.history)prof.history=[];
+  prof.history.push({score:total,corr,time:timeTaken});
+  if(prof.history.length>5)prof.history.shift();
+  saveProfile();
+
+  const lv=getLevel(prof.xp);
+  document.getElementById('r-lvbadge').textContent=`Ур. ${lv.num} · ${lv.name}`;
+  document.getElementById('r-score').textContent=total;
+  const gc=total>=90?'g5':total>=75?'g4':total>=60?'g3':'g2';
+  const gt=total>=90?'5 — Отлично':total>=75?'4 — Хорошо':total>=60?'3 — Удовлетворительно':'2 — Неудовлетворительно';
+  const gb=document.getElementById('r-gdbadge');
+  gb.className='gd-badge '+gc;gb.textContent=gt;
+  document.getElementById('r-status').textContent=total>=44?'Порог пройден (минимум 44 балла)':'Минимальный порог не преодолён (нужно 44+ балла)';
+  document.getElementById('r-xpgain').textContent=`+${sessionXP} XP`;
+  document.getElementById('r-corr').textContent=`${corr}/10`;
+  document.getElementById('r-pts').textContent=`+${taskPts}`;
+  document.getElementById('r-mxsk').textContent=sessionMaxStreak;
+
+  const ra=document.getElementById('r-ach-area');ra.innerHTML='';
+  if(newAchs.length){
+    const h=document.createElement('div');h.className='sec-ttl';h.style.marginTop='1rem';h.textContent='Новые достижения';ra.appendChild(h);
+    newAchs.forEach(id=>{
+      const ac=ACHS.find(a=>a.id===id);if(!ac)return;
+      const d=document.createElement('div');d.className='toast';
+      d.innerHTML=`<div class="toast-ico">${ac.ico}</div><div><div class="toast-t">Разблокировано: ${ac.name}</div><div class="toast-s">${ac.desc}</div></div>`;
+      ra.appendChild(d);
+    });
+  }
+
+  const rv=document.getElementById('r-review');rv.innerHTML='';
+  sel.forEach((q,i)=>{
+    const ok=ans[i]===q.a;
+    const d=document.createElement('div');d.className=`rev-item ${ok?'ok':'ng'}`;
+    d.innerHTML=`<div class="rev-q">${i+1}. ${q.q}</div><div class="rev-a"><span class="${ok?'a-ok':'a-ng'}">Ваш ответ: ${ans[i]>=0?L[ans[i]]+') '+q.o[ans[i]]:'не отвечено'}</span>${!ok?`<br><span class="a-ok">Правильно: ${L[q.a]}) ${q.o[q.a]}</span>`:''}</div><div class="rev-exp">${q.e}</div>`;
+    rv.appendChild(d);
   });
+  show('s-res');
 }
 
-function restart() {
-  document.getElementById('result-screen').style.display = 'none';
-  startExam(trainMode);
-}
-
-function goStart() {
-  document.getElementById('result-screen').style.display = 'none';
-  document.getElementById('start-screen').style.display = 'block';
-  clearInterval(timer);
-}
+loadProfile();
 </script>
